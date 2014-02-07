@@ -1,0 +1,14 @@
+{
+    "name": "smhg/date-frequency",
+    "description": "Temporal frequency library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "smhg",
+            "email": "sam@strictlyphp.com"
+        }
+    ],
+    "require": {
+      "php": ">=5.3.0"
+    }
+}
