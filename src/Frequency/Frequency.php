@@ -5,7 +5,7 @@ class Frequency
 {
     protected $rules = array();
 
-    public function __construct($str)
+    public function __construct($str = null)
     {
         if (is_string($str)) {
             $units = array('M', 'D', 'h', 'm', 's');
@@ -41,8 +41,45 @@ class Frequency
         }
     }
 
+    public function on($unit, $options = null)
+    {
+        $unit = Unit::filter($unit);
+
+        if (!$unit || $unit === 'Y') {
+            // rules on first unit (year) are not possible
+            throw new Exception('Invalid unit');
+        }
+
+        if (is_numeric($options)) {
+            // second parameter = fix
+            $options = array(
+                    'fix' => $options
+                );
+        }
+
+        if (func_num_args() === 3) {
+            $options['scope'] = Unit::filter(func_get_arg(2));
+        }
+
+        if (!$options['fix']) {
+            $options['fix'] = Unit::$defaults[$unit];
+        }
+
+        $options['scope'] = Scope::filter($unit, isset($options['scope']) ? $options['scope'] : null);
+
+        $this->rules[$unit] = $options;
+
+        return $this;
+    }
+
     public function getValue($unit, $scope = null)
     {
+        $unit = Unit::filter($unit);
+
+        if (!$unit) {
+            throw new Exception('Invalid unit');
+        }
+
         if (!$this->rules[$unit] || ($scope && (!$this->rules[$unit]['scope'] || $this->rules[$unit]['scope'] !== $scope))) {
             return;
         }

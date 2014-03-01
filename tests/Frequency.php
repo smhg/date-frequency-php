@@ -32,4 +32,18 @@ class FrequencyTest extends \PHPUnit_Framework_TestCase
 
         $this->fail('Invalid string format not detected.');
     }
+
+    public function testOnAndGetValue()
+    {
+        $frequency = new Frequency();
+
+        $frequency->on('hour', 10);
+        $this->assertEquals(10, $frequency->getValue('hour'));
+
+        $frequency->on('day', 18);
+        $this->assertEquals(18, $frequency->getValue('D'));
+
+        $frequency->on('D', 3, 'week');
+        $this->assertEquals(3, $frequency->getValue('day', 'W'));
+    }
 }
