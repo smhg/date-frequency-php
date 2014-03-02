@@ -130,6 +130,21 @@ class Frequency
         return $date;
     }
 
+    public function between(\DateTime $start, \DateTime $end)
+    {
+        $result = array();
+        $d = clone $start;
+
+        $d = $this->next($d);
+        while ($d < $end) {
+            $result[] = clone $d;
+            $d->modify('+1 second');
+            $d = $this->next($d);
+        }
+
+        return $result;
+    }
+
     public function __toString()
     {
         $result = 'F';

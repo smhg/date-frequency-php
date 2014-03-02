@@ -105,6 +105,21 @@ class FrequencyTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($frequency->next($start), new \DateTime('2013-09-04T10:00:00'));
     }
 
+    public function testBetween()
+    {
+        $frequency = new Frequency();
+        $frequency->on('hour', 10)
+            ->on('minute', 0)
+            ->on('second', 0); // each day at 10:00:00
+        $dates = $frequency->between(new \DateTime('2013-09-02T00:00:00'), new \DateTime('2013-09-09T00:00:00'));
+
+        $this->assertEquals(count($dates), 7);
+
+        $this->assertEquals($dates[0], new \DateTime('2013-09-02T10:00:00'));
+
+        $this->assertEquals($dates[6], new \DateTime('2013-09-08T10:00:00'));
+    }
+
     public function testToString()
     {
         $frequency = new Frequency();
