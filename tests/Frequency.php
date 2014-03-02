@@ -131,5 +131,8 @@ class FrequencyTest extends \PHPUnit_Framework_TestCase
         $frequency->on('day', 2, 'week')
             ->on('hour', 10);
         $this->assertEquals('F2D/WT10H', (string)$frequency);
+
+        $frequency = new Frequency('F1D/WT15H45M');
+        $this->assertEquals('F1D/WT15H45M', (string)$frequency);
     }
 }

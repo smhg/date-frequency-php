@@ -151,15 +151,20 @@ class Frequency
         $hasTime = false;
 
         foreach ($this->rules as $unit => $rule) {
-            if (!$hasTime && in_array($unit, array('h', 'm', 's'))) {
-                $result .= 'T';
-                $hasTime = true;
-            }
+            $fixSet = $rule['fix'] !== Unit::$defaults[$unit];
+            $scopeSet = $rule['scope'] !== Scope::getDefault($unit);
 
-            $result .= $rule['fix'] . strtoupper($unit);
+            if ($fixSet || $scopeSet) {
+                if (!$hasTime && in_array($unit, array('h', 'm', 's'))) {
+                    $result .= 'T';
+                    $hasTime = true;
+                }
 
-            if ($rule['scope'] && $rule['scope'] !== Scope::getDefault($unit)) {
-                $result .= '/' . $rule['scope'];
+                $result .= $rule['fix'] . strtoupper($unit);
+
+                if ($scopeSet) {
+                    $result .= '/' . $rule['scope'];
+                }
             }
         }
 
