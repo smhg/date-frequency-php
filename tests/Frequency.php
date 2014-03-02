@@ -104,4 +104,17 @@ class FrequencyTest extends \PHPUnit_Framework_TestCase
             ->on('day', 3, 'week'); // each Wednesday at 10:00:00
         $this->assertEquals($frequency->next($start), new \DateTime('2013-09-04T10:00:00'));
     }
+
+    public function testToString()
+    {
+        $frequency = new Frequency();
+        $frequency->on('month', 2)
+            ->on('hour', 10);
+        $this->assertEquals('F2MT10H', (string)$frequency);
+
+        $frequency = new Frequency();
+        $frequency->on('day', 2, 'week')
+            ->on('hour', 10);
+        $this->assertEquals('F2D/WT10H', (string)$frequency);
+    }
 }

@@ -129,4 +129,25 @@ class Frequency
 
         return $date;
     }
+
+    public function __toString()
+    {
+        $result = 'F';
+        $hasTime = false;
+
+        foreach ($this->rules as $unit => $rule) {
+            if (!$hasTime && in_array($unit, array('h', 'm', 's'))) {
+                $result .= 'T';
+                $hasTime = true;
+            }
+
+            $result .= $rule['fix'] . strtoupper($unit);
+
+            if ($rule['scope'] && $rule['scope'] !== Scope::getDefault($unit)) {
+                $result .= '/' . $rule['scope'];
+            }
+        }
+
+        return $result;
+    }
 }
