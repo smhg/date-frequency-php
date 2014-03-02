@@ -18,12 +18,15 @@ class Scope
             throw new Exception('Invalid unit');
         }
 
-        if (self::$scopes[$unit] === $scope
-            || (is_array(self::$scopes[$unit]) && in_array($scope, self::$scopes[$unit]))) {
-                return $scope;
-        } else {
-            self::getDefault($unit);
+        if (is_array(self::$scopes[$unit])) {
+            if (!in_array($scope, self::$scopes[$unit])) {
+                return self::getDefault($unit);
+            }
+        } elseif (self::$scopes[$unit] !== $scope) {
+            return self::getDefault($unit);
         }
+
+        return $scope;
     }
 
     public static function getDefault($unit)
