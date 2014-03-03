@@ -110,6 +110,10 @@ class FrequencyTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(new \DateTime('2014-03-10T15:45:01'), $frequency->next(new \DateTime('2014-03-10T15:45:01')));
 
         $this->assertEquals(new \DateTime('2014-03-17T15:45:00'), $frequency->next(new \DateTime('2014-03-10T15:46:00')));
+
+
+        $frequency = new Frequency('F1D/WT15H45M0S');
+        $this->assertEquals(new \DateTime('2014-03-10T15:45:00'), $frequency->next(new \DateTime('2014-03-04T00:00:00')));
     }
 
     public function testBetween()
@@ -125,9 +129,12 @@ class FrequencyTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(new \DateTime('2013-09-08T10:00:00'), $dates[6]);
 
         $frequency = new Frequency('F1D/WT15H45M0S');
-        $dates = $frequency->between(new \DateTime('2014-03-10T00:00:00'), new \DateTime('2014-03-17T00:00:00'));
 
+        $dates = $frequency->between(new \DateTime('2014-03-10T00:00:00'), new \DateTime('2014-03-17T00:00:00'));
         $this->assertEquals(1, count($dates));
+
+        $dates = $frequency->between(new \DateTime('2014-03-04T00:00:00'), new \DateTime('2014-03-10T00:00:00'));
+        $this->assertEquals(0, count($dates));
     }
 
     public function testToString()

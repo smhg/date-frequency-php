@@ -106,10 +106,11 @@ class Frequency
             return Scope::getDefault($u);
         }, array_keys(Unit::$defaults)));
 
-        $resetUnit = function ($u) use (&$date) {
+        $resetUnit = function ($u) use (&$date, $scopes) {
             $full = array_search($u, Unit::$full);
-            $date->modify('-' . (Unit::get($date, $u) - Unit::$defaults[$u]) . ' ' . $full);
+            $date->modify('-' . (Unit::get($date, $u, $scopes[$u]) - Unit::$defaults[$u]) . ' ' . $full);
         };
+
 
         foreach (Unit::$defaults as $unit => $default) {
             if (in_array($unit, $fixedUnits)) {
@@ -135,7 +136,7 @@ class Frequency
                     $reset = array_merge(array_diff(Unit::between($parentUnit, $unit), $fixedUnits), array($unit), Unit::lower($unit));
                     array_walk($reset, $resetUnit);
 
-                    $date->modify('+' . $rule['fix'] - $default . ' ' . $full);
+                    $date->modify('+' . ($rule['fix'] - $default) . ' ' . $full);
                 }
             }
         }
