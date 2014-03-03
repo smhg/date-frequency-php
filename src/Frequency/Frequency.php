@@ -30,14 +30,16 @@ class Frequency
             array_shift($matches);
             $length = count($matches);
             for ($i = 0;$i < count($matches);$i += 2) {
-                $u = $units[$i / 2];
+                if (is_numeric($matches[$i][0])) {
+                    $u = $units[$i / 2];
 
-                $rules[$u] = array(
-                    'fix' => (int)$matches[$i][0]
-                );
+                    $rules[$u] = array(
+                        'fix' => (int)$matches[$i][0]
+                    );
 
-                if ($matches[$i + 1][0]) {
-                    $rules[$u]['scope'] = $matches[$i + 1][0];
+                    if ($matches[$i + 1][0]) {
+                        $rules[$u]['scope'] = $matches[$i + 1][0];
+                    }
                 }
             }
         } elseif (is_array($str)) {
@@ -94,16 +96,24 @@ class Frequency
     public function next(\DateTime $date)
     {
         $date = clone $date;
-        $fixedUnits = array_keys($this->rules);
+        $rules = $this->rules;
+        $fixedUnits = array_keys($rules);
+
+        $scopes = array_combine(array_keys(Unit::$defaults), array_map(function ($u) use ($rules) {
+            if (isset($rules[$u]) && isset($rules[$u]['scope'])) {
+                return $rules[$u]['scope'];
+            }
+            return Scope::getDefault($u);
+        }, array_keys(Unit::$defaults)));
 
         $resetUnit = function ($u) use (&$date) {
             $full = array_search($u, Unit::$full);
-            $date->modify('-' . (Unit::get($date, $u, Scope::getDefault($u)) - Unit::$defaults[$u]) . ' ' . $full);
+            $date->modify('-' . (Unit::get($date, $u) - Unit::$defaults[$u]) . ' ' . $full);
         };
 
         foreach (Unit::$defaults as $unit => $default) {
             if (in_array($unit, $fixedUnits)) {
-                $rule = $this->rules[$unit];
+                $rule = $rules[$unit];
 
                 $datePart = Unit::get($date, $unit, $rule['scope']);
                 $full = array_search($unit, Unit::$full);
@@ -115,11 +125,14 @@ class Frequency
                     array_walk(Unit::lower($unit), $resetUnit);
                 } else if ($datePart > $rule['fix']) {
                     // add one to closest non fixed parent
-                    $parent = array_pop(array_diff(Unit::higher($unit), $fixedUnits));
+                    $scopesAbove = array_diff(array_intersect_key($scopes, array_flip(array_merge(Unit::higher($unit), array($unit)))), $fixedUnits);
+                    end($scopesAbove);
+                    $parent = current($scopesAbove);
+                    $parentUnit = key($scopesAbove);
                     $date->modify('+1 ' . array_search($parent, Unit::$full));
 
-                    // reset everything below that parent (except for fixed values above the current unit)
-                    $reset = array_merge(array_diff(Unit::between($parent, $unit), $fixedUnits), array($unit), Unit::lower($unit));
+                    // reset everything below that parent and above the current unit (except for fixed values)
+                    $reset = array_merge(array_diff(Unit::between($parentUnit, $unit), $fixedUnits), array($unit), Unit::lower($unit));
                     array_walk($reset, $resetUnit);
 
                     $date->modify('+' . $rule['fix'] - $default . ' ' . $full);

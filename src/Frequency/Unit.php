@@ -38,12 +38,24 @@ class Unit
 
     public static function lower($unit)
     {
-        return array_slice(self::$order, array_search($unit, self::$order) + 1);
+        $pos = array_search($unit, self::$order);
+
+        if ($pos === false) {
+            throw new Exception('Invalid base unit');
+        }
+
+        return array_slice(self::$order, $pos + 1);
     }
 
     public static function higher($unit)
     {
-        return array_slice(self::$order, 0, array_search($unit, self::$order));
+        $pos = array_search($unit, self::$order);
+
+        if ($pos === false) {
+            throw new Exception('Invalid base unit');
+        }
+
+        return array_slice(self::$order, 0, $pos);
     }
 
     public static function between($left, $right)
@@ -51,19 +63,19 @@ class Unit
         return array_intersect(self::lower($left), self::higher($right));
     }
 
-    public static function get(\DateTime $date, $unit, $scope)
+    public static function get(\DateTime $date, $unit, $scope = null)
     {
         switch ($unit) {
             case 'M':
                 switch ($scope) {
-                    case 'Y':
+                    default: // Y
                         return (int)$date->format('n');
                         break;
                 }
                 break;
             case 'W':
                 switch ($scope) {
-                    case 'Y':
+                    default: // Y
                         return (int)$date->format('W');
                         break;
                 }
@@ -73,31 +85,31 @@ class Unit
                     case 'Y':
                         return (int)$date->format('z');
                         break;
-                    case 'M':
-                        return (int)$date->format('j');
-                        break;
                     case 'W':
                         return (int)$date->format('N');
+                        break;
+                    default: // M
+                        return (int)$date->format('j');
                         break;
                 }
                 break;
             case 'h':
                 switch ($scope) {
-                    case 'D':
+                    default: // D
                         return (int)$date->format('G');
                         break;
                 }
                 break;
             case 'm':
                 switch ($scope) {
-                    case 'h':
+                    default: // h
                         return (int)$date->format('i');
                         break;
                 }
                 break;
             case 's':
                 switch ($scope) {
-                    case 'm':
+                    default: // m
                         return (int)$date->format('s');
                         break;
                 }

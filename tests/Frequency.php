@@ -103,6 +103,13 @@ class FrequencyTest extends \PHPUnit_Framework_TestCase
         $frequency->on('hour', 10)
             ->on('day', 3, 'week'); // each Wednesday at 10:00:00
         $this->assertEquals($frequency->next($start), new \DateTime('2013-09-04T10:00:00'));
+
+        $frequency = new Frequency('F1D/WT15H45M');
+        $this->assertEquals(new \DateTime('2014-03-10T15:45:00'), $frequency->next(new \DateTime('2014-03-10T00:00:00')));
+
+        $this->assertEquals(new \DateTime('2014-03-10T15:45:01'), $frequency->next(new \DateTime('2014-03-10T15:45:01')));
+
+        $this->assertEquals(new \DateTime('2014-03-17T15:45:00'), $frequency->next(new \DateTime('2014-03-10T15:46:00')));
     }
 
     public function testBetween()
@@ -113,15 +120,21 @@ class FrequencyTest extends \PHPUnit_Framework_TestCase
             ->on('second', 0); // each day at 10:00:00
         $dates = $frequency->between(new \DateTime('2013-09-02T00:00:00'), new \DateTime('2013-09-09T00:00:00'));
 
-        $this->assertEquals(count($dates), 7);
+        $this->assertEquals(7, count($dates));
+        $this->assertEquals(new \DateTime('2013-09-02T10:00:00'), $dates[0]);
+        $this->assertEquals(new \DateTime('2013-09-08T10:00:00'), $dates[6]);
 
-        $this->assertEquals($dates[0], new \DateTime('2013-09-02T10:00:00'));
+        $frequency = new Frequency('F1D/WT15H45M0S');
+        $dates = $frequency->between(new \DateTime('2014-03-10T00:00:00'), new \DateTime('2014-03-17T00:00:00'));
 
-        $this->assertEquals($dates[6], new \DateTime('2013-09-08T10:00:00'));
+        $this->assertEquals(1, count($dates));
     }
 
     public function testToString()
     {
+        $frequency = new Frequency('FT15H45M');
+        $this->assertEquals('FT15H45M', (string)$frequency);
+
         $frequency = new Frequency();
         $frequency->on('month', 2)
             ->on('hour', 10);
