@@ -1,5 +1,8 @@
 <?php
-require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../src/Frequency/Frequency.php';
+require_once __DIR__ . '/../src/Frequency/Unit.php';
+require_once __DIR__ . '/../src/Frequency/Scope.php';
+require_once __DIR__ . '/../src/Frequency/Exception.php';
 
 use Frequency\Frequency;
 use Frequency\Exception;
