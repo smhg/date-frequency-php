@@ -123,7 +123,8 @@ class Frequency
                     $date->modify('+' . ($rule['fix'] - $datePart) . ' ' . $full);
 
                     // reset everything below current unit
-                    array_walk(Unit::lower($unit), $resetUnit);
+                    $lowerUnits = Unit::lower($unit);
+                    array_walk($lowerUnits, $resetUnit);
                 } else if ($datePart > $rule['fix']) {
                     // add one to closest non fixed parent
                     $scopesAbove = array_diff(array_intersect_key($scopes, array_flip(array_merge(Unit::higher($unit), array($unit)))), $fixedUnits);

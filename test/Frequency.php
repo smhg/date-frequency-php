@@ -1,4 +1,6 @@
 <?php
+error_reporting(E_ALL | E_STRICT);
+
 require_once __DIR__ . '/../src/Frequency/Frequency.php';
 require_once __DIR__ . '/../src/Frequency/Unit.php';
 require_once __DIR__ . '/../src/Frequency/Scope.php';
