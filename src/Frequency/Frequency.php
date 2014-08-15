@@ -3,6 +3,8 @@ namespace Frequency;
 
 class Frequency
 {
+    public static $fn = array();
+
     protected $rules = array();
 
     public function __construct($str = null)
@@ -10,17 +12,19 @@ class Frequency
         $rules = array();
 
         if (is_string($str)) {
-            $units = array('M', 'D', 'h', 'm', 's');
+            $units = array('Y', 'M', 'W', 'D', 'h', 'm', 's');
             $pattern = implode('', array(
-                '/^F',
-                '(?:(\\d+)M(?:\\/([Y]{1}))?)?',
-                '(?:(\\d+)D(?:\\/([YMW]{1}))?)?',
-                '(?:T',
-                '(?:(\\d+)H(?:\\/([YMWD]{1}))?)?',
-                '(?:(\\d+)M(?:\\/([YMWDH]{1}))?)?',
-                '(?:(\\d+)S(?:\\/([YMWDHM]{1}))?)?',
-                ')?$/'
-            ));
+                    '/^F',
+                    '(?:(\\d+|\\(\\w*\\))Y(?:\\/([E]{1}))?)?',
+                    '(?:(\\d+|\\(\\w*\\))M(?:\\/([EY]{1}))?)?',
+                    '(?:(\\d+|\\(\\w*\\))W(?:\\/([EYM]{1}))?)?',
+                    '(?:(\\d+|\\(\\w*\\))D(?:\\/([EYMW]{1}))?)?',
+                    '(?:T',
+                    '(?:(\\d+|\\(\\w*\\))H(?:\\/([EYMWD]{1}))?)?',
+                    '(?:(\\d+|\\(\\w*\\))M(?:\\/([EYMWDH]{1}))?)?',
+                    '(?:(\\d+|\\(\\w*\\))S(?:\\/([EYMWDHM]{1}))?)?',
+                    ')?$/'
+                ));
 
             $matches = array();
             if (!preg_match_all($pattern, $str, $matches)) {
@@ -33,9 +37,13 @@ class Frequency
                 if (is_numeric($matches[$i][0])) {
                     $u = $units[$i / 2];
 
-                    $rules[$u] = array(
-                        'fix' => (int)$matches[$i][0]
-                    );
+                    $rules[$u] = array();
+
+                    if (substr($matches[$i][0], 0, 1) === '(') {
+                        $rules[$u]['fn'] = preg_replace('/^\(/', '', $matches[$i][0]);
+                    } else {
+                        $rules[$u]['fix'] = (int)$matches[$i][0];
+                    }
 
                     if ($matches[$i + 1][0]) {
                         $rules[$u]['scope'] = $matches[$i + 1][0];
@@ -55,8 +63,7 @@ class Frequency
     {
         $unit = Unit::filter($unit);
 
-        if (!$unit || $unit === 'Y') {
-            // rules on first unit (year) are not possible
+        if (!$unit) {
             throw new Exception('Invalid unit');
         }
 
@@ -70,13 +77,21 @@ class Frequency
             }
         }
 
-        if (!$options['fix']) {
-            $options['fix'] = Unit::$defaults[$unit];
+        $rule = array(
+                'scope' => Scope::filter($unit, Unit::filter(isset($options['scope']) ? $options['scope'] : null))
+            );
+
+        if (isset($options['fn'])) {
+            if (!Frequency::$fn[$options['fn']]) {
+              throw new Exception(sprintf('Filter function \'%s\' not available', $options['fn']));
+            }
+
+            $rule['fn'] = $options['fn'];
+        } else {
+            $rule['fix'] = $options['fix'] ? $options['fix'] : Unit::$defaults[$unit];
         }
 
-        $options['scope'] = Scope::filter($unit, Unit::filter(isset($options['scope']) ? $options['scope'] : null));
-
-        $this->rules[$unit] = $options;
+        $this->rules[$unit] = $rule;
 
         return $this;
     }
@@ -107,12 +122,14 @@ class Frequency
         }, array_keys(Unit::$defaults)));
 
         $resetUnit = function ($u) use (&$date, $scopes) {
-            $full = array_search($u, Unit::$full);
-            $date->modify('-' . (Unit::get($date, $u, $scopes[$u]) - Unit::$defaults[$u]) . ' ' . $full);
+            if (isset($scopes[$u])) {
+                $full = array_search($u, Unit::$full);
+                $date->modify('-' . (Unit::get($date, $u, $scopes[$u]) - Unit::$defaults[$u]) . ' ' . $full);
+            }
         };
 
 
-        foreach (Unit::$defaults as $unit => $default) {
+        foreach (Unit::$order as $unit) {
             if (in_array($unit, $fixedUnits)) {
                 $rule = $rules[$unit];
 
@@ -137,7 +154,7 @@ class Frequency
                     $reset = array_merge(array_diff(Unit::between($parentUnit, $unit), $fixedUnits), array($unit), Unit::lower($unit));
                     array_walk($reset, $resetUnit);
 
-                    $date->modify('+' . ($rule['fix'] - $default) . ' ' . $full);
+                    $date->modify('+' . ($rule['fix'] - Unit::$defaults[$unit]) . ' ' . $full);
                 }
             }
         }
@@ -165,16 +182,26 @@ class Frequency
         $result = 'F';
         $hasTime = false;
 
-        foreach ($this->rules as $unit => $rule) {
-            if (!$hasTime && in_array($unit, array('h', 'm', 's'))) {
-                $result .= 'T';
-                $hasTime = true;
-            }
+        foreach (Unit::$order as $unit) {
+            if (isset($this->rules[$unit])) {
+                $rule = $this->rules[$unit];
 
-            $result .= $rule['fix'] . strtoupper($unit);
+                if (!$hasTime && in_array($unit, array('h', 'm', 's'))) {
+                    $result .= 'T';
+                    $hasTime = true;
+                }
 
-            if ($rule['scope'] !== Scope::getDefault($unit)) {
-                $result .= '/' . $rule['scope'];
+                if (isset($rule['fix'])) {
+                    $result .= $rule['fix'];
+                } else {
+                    $result .= sprintf('(%s)', $rule['fn']);
+                }
+
+                $result .= strtoupper($unit);
+
+                if ($rule['scope'] !== Scope::getDefault($unit)) {
+                    $result .= '/' . $rule['scope'];
+                }
             }
         }
 

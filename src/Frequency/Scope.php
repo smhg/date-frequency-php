@@ -4,12 +4,13 @@ namespace Frequency;
 class Scope
 {
     public static $scopes = array(
-        'M' => 'Y',
-        'W' => 'Y',
-        'D' => array('M', 'Y', 'W'),
-        'h' => 'D',
-        'm' => 'h',
-        's' => 'm'
+        'Y' => array('E'),
+        'M' => array('Y', 'E'),
+        'W' => array('Y', 'M', 'E'),
+        'D' => array('M', 'W', 'Y', 'E'),
+        'h' => array('D', 'W', 'M', 'Y', 'E'),
+        'm' => array('h', 'D', 'W', 'M', 'Y', 'E'),
+        's' => array('m', 'h', 'D', 'W', 'M', 'Y', 'E')
     );
 
     public static function filter($unit, $scope)

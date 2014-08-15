@@ -3,9 +3,10 @@ namespace Frequency;
 
 class Unit
 {
-    public static $order = array('Y', 'M', 'D', 'h', 'm', 's');
+    public static $order = array('Y', 'M', 'W', 'D', 'h', 'm', 's');
 
     public static $full = array(
+        'epoch' => 'E',
         'year' => 'Y',
         'month' => 'M',
         'week' => 'W',
@@ -16,6 +17,7 @@ class Unit
     );
 
     public static $defaults = array(
+        'Y' => 0,
         'M' => 1,
         'D' => 1,
         'h' => 0,
@@ -66,56 +68,70 @@ class Unit
     public static function get(\DateTime $date, $unit, $scope = null)
     {
         switch ($unit) {
+            case 'Y':
+                return (int)$date->format('Y');
             case 'M':
                 switch ($scope) {
-                    default: // Y
+                    case 'E':
+                        throw new Exception('Scope not implemented: month of epoch');
+                        break;
+                    case 'Y':
                         return (int)$date->format('n');
                         break;
                 }
                 break;
             case 'W':
                 switch ($scope) {
-                    default: // Y
+                    case 'E':
+                        throw new Exception('Scope not implemented: week of epoch');
+                        break;
+                    case 'M':
+                        throw new Exception('Scope not implemented: week of month');
+                        break;
+                    case 'Y':
                         return (int)$date->format('W');
                         break;
                 }
                 break;
             case 'D':
                 switch ($scope) {
+                    case 'E':
+                        throw new Exception('Scope not implemented: day of epoch');
+                        break;
                     case 'Y':
                         return (int)$date->format('z');
                         break;
                     case 'W':
                         return (int)$date->format('N');
                         break;
-                    default: // M
+                    case 'M':
                         return (int)$date->format('j');
                         break;
                 }
                 break;
             case 'h':
                 switch ($scope) {
-                    default: // D
+                    case 'D':
                         return (int)$date->format('G');
                         break;
                 }
                 break;
             case 'm':
                 switch ($scope) {
-                    default: // h
+                    case 'h':
                         return (int)$date->format('i');
                         break;
                 }
                 break;
             case 's':
                 switch ($scope) {
-                    default: // m
+                    case 'm':
                         return (int)$date->format('s');
                         break;
                 }
                 break;
         }
 
-        throw new Exception('Invalid unit/scope');
+        throw new Exception('Invalid unit/scope: ' . $unit . '/' . $scope);
     }
 }
