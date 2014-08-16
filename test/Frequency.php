@@ -9,6 +9,16 @@ require_once __DIR__ . '/../src/Frequency/Exception.php';
 use Frequency\Frequency;
 use Frequency\Exception;
 
+Frequency::$fn['odd'] = function($number)
+{
+    return $number % 2 !== 0;
+};
+Frequency::$fn['leap'] = function($year)
+{
+    // just a demo
+    return $year % 4 === 0;
+};
+
 class FrequencyTest extends \PHPUnit_Framework_TestCase
 {
     public function testValidString()
@@ -162,5 +172,8 @@ class FrequencyTest extends \PHPUnit_Framework_TestCase
 
         $frequency = new Frequency('F1D/WT15H45M0S');
         $this->assertEquals('F1D/WT15H45M0S', (string)$frequency);
+
+        $this->assertEquals('F(leap)Y1D/WT15H45M0S', (string)(new Frequency('F(leap)Y1D/WT15H45M0S')));
+        $this->assertEquals('F(odd)W/E1D/WT15H45M0S', (string)(new Frequency('F(odd)W/E1D/WT15H45M0S')));
     }
 }

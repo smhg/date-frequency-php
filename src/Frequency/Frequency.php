@@ -34,13 +34,13 @@ class Frequency
             array_shift($matches);
             $length = count($matches);
             for ($i = 0;$i < count($matches);$i += 2) {
-                if (is_numeric($matches[$i][0])) {
+                if (strlen($matches[$i][0]) > 0) {
                     $u = $units[$i / 2];
 
                     $rules[$u] = array();
 
                     if (substr($matches[$i][0], 0, 1) === '(') {
-                        $rules[$u]['fn'] = preg_replace('/^\(/', '', $matches[$i][0]);
+                        $rules[$u]['fn'] = trim($matches[$i][0], ' ()');
                     } else {
                         $rules[$u]['fix'] = (int)$matches[$i][0];
                     }
@@ -82,13 +82,13 @@ class Frequency
             );
 
         if (isset($options['fn'])) {
-            if (!Frequency::$fn[$options['fn']]) {
+            if (!isset(Frequency::$fn[$options['fn']])) {
               throw new Exception(sprintf('Filter function \'%s\' not available', $options['fn']));
             }
 
             $rule['fn'] = $options['fn'];
         } else {
-            $rule['fix'] = $options['fix'] ? $options['fix'] : Unit::$defaults[$unit];
+            $rule['fix'] = isset($options['fix']) ? $options['fix'] : Unit::$defaults[$unit];
         }
 
         $this->rules[$unit] = $rule;
@@ -130,31 +130,35 @@ class Frequency
 
 
         foreach (Unit::$order as $unit) {
-            if (in_array($unit, $fixedUnits)) {
+            if (isset($rules[$unit])) {
                 $rule = $rules[$unit];
+                if (isset($rule['fix'])) {
 
-                $datePart = Unit::get($date, $unit, $rule['scope']);
-                $full = array_search($unit, Unit::$full);
+                    $datePart = Unit::get($date, $unit, $rule['scope']);
+                    $full = array_search($unit, Unit::$full);
 
-                if ($datePart < $rule['fix']) {
-                    $date->modify('+' . ($rule['fix'] - $datePart) . ' ' . $full);
+                    if ($datePart < $rule['fix']) {
+                        $date->modify('+' . ($rule['fix'] - $datePart) . ' ' . $full);
 
-                    // reset everything below current unit
-                    $lowerUnits = Unit::lower($unit);
-                    array_walk($lowerUnits, $resetUnit);
-                } else if ($datePart > $rule['fix']) {
-                    // add one to closest non fixed parent
-                    $scopesAbove = array_diff(array_intersect_key($scopes, array_flip(array_merge(Unit::higher($unit), array($unit)))), $fixedUnits);
-                    end($scopesAbove);
-                    $parent = current($scopesAbove);
-                    $parentUnit = key($scopesAbove);
-                    $date->modify('+1 ' . array_search($parent, Unit::$full));
+                        // reset everything below current unit
+                        $lowerUnits = Unit::lower($unit);
+                        array_walk($lowerUnits, $resetUnit);
+                    } else if ($datePart > $rule['fix']) {
+                        // add one to closest non fixed parent
+                        $scopesAbove = array_diff(array_intersect_key($scopes, array_flip(array_merge(Unit::higher($unit), array($unit)))), $fixedUnits);
+                        end($scopesAbove);
+                        $parent = current($scopesAbove);
+                        $parentUnit = key($scopesAbove);
+                        $date->modify('+1 ' . array_search($parent, Unit::$full));
 
-                    // reset everything below that parent and above the current unit (except for fixed values)
-                    $reset = array_merge(array_diff(Unit::between($parentUnit, $unit), $fixedUnits), array($unit), Unit::lower($unit));
-                    array_walk($reset, $resetUnit);
+                        // reset everything below that parent and above the current unit (except for fixed values)
+                        $reset = array_merge(array_diff(Unit::between($parentUnit, $unit), $fixedUnits), array($unit), Unit::lower($unit));
+                        array_walk($reset, $resetUnit);
 
-                    $date->modify('+' . ($rule['fix'] - Unit::$defaults[$unit]) . ' ' . $full);
+                        $date->modify('+' . ($rule['fix'] - Unit::$defaults[$unit]) . ' ' . $full);
+                    }
+                } elseif (isset($rule['fn'])) {
+
                 }
             }
         }
