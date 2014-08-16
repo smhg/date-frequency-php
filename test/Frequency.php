@@ -9,15 +9,12 @@ require_once __DIR__ . '/../src/Frequency/Exception.php';
 use Frequency\Frequency;
 use Frequency\Exception;
 
-Frequency::$fn['odd'] = function($number)
-{
-    return $number % 2 !== 0;
-};
-Frequency::$fn['leap'] = function($year)
-{
-    // just a demo
-    return $year % 4 === 0;
-};
+Frequency::$fn['odd'] = function($number) {
+        return $number % 2 !== 0;
+    };
+Frequency::$fn['leap'] = function($year) {
+        return $year % 4 === 0; // just a demo
+    };
 
 class FrequencyTest extends \PHPUnit_Framework_TestCase
 {
@@ -129,6 +126,13 @@ class FrequencyTest extends \PHPUnit_Framework_TestCase
 
         $frequency = new Frequency('F1D/WT15H45M0S');
         $this->assertEquals(new \DateTime('2014-03-10T15:45:00'), $frequency->next(new \DateTime('2014-03-04T00:00:00')));
+    }
+
+    public function testFilter()
+    {
+        $f = new Frequency('F(odd)W/E1D/WT15H45M0S'); // Mondays of odd weeks at 15:45:00
+//        $this->assertEquals(new \DateTime('2014-08-11T15:45:00'), $f->next(new \DateTime('2014-08-06T00:00:00')));
+        $this->assertEquals(new \DateTime('2014-08-11T15:45:00'), $f->next(new \DateTime('2014-08-11T00:00:00')));
     }
 
     public function testBetween()

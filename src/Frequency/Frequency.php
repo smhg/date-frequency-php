@@ -101,7 +101,7 @@ class Frequency
         $unit = Unit::filter($unit);
         $scope = Scope::filter($unit, Unit::filter($scope));
 
-        if (!$this->rules[$unit] || $this->rules[$unit]['scope'] !== $scope) {
+        if (!isset($this->rules[$unit]) || $this->rules[$unit]['scope'] !== $scope) {
             return;
         }
 
@@ -112,22 +112,41 @@ class Frequency
     {
         $date = clone $date;
         $rules = $this->rules;
-        $fixedUnits = array_keys($rules);
+        $fixedUnits = array_keys(array_filter($rules, function($rule) {
+                return isset($rule['fix']);
+            }));
 
         $scopes = array_combine(array_keys(Unit::$defaults), array_map(function ($u) use ($rules) {
-            if (isset($rules[$u]) && isset($rules[$u]['scope'])) {
-                return $rules[$u]['scope'];
-            }
-            return Scope::getDefault($u);
-        }, array_keys(Unit::$defaults)));
+                if (isset($rules[$u]) && isset($rules[$u]['scope'])) {
+                    return $rules[$u]['scope'];
+                }
+                return Scope::getDefault($u);
+            }, array_keys(Unit::$defaults)));
 
         $resetUnit = function ($u) use (&$date, $scopes) {
-            if (isset($scopes[$u])) {
-                $full = array_search($u, Unit::$full);
-                $date->modify('-' . (Unit::get($date, $u, $scopes[$u]) - Unit::$defaults[$u]) . ' ' . $full);
-            }
-        };
+                if (isset($scopes[$u])) {
+                    $full = array_search($u, Unit::$full);
+                    $date->modify('-' . (Unit::get($date, $u, $scopes[$u]) - Unit::$defaults[$u]) . ' ' . $full);
+                }
+            };
 
+        $filter = function ($date, $unit, $rule = null) use ($resetUnit) {
+                if ($rule) {
+                    $fn = Frequency::$fn[$rule['fn']];
+                    $full = array_search($unit, Unit::$full);
+
+                    $success = $fn(Unit::get($date, $unit, $rule['scope']), $date);
+
+                    if (!$success) {
+                        do {
+                            $date->modify('+1 ' . $full);
+                        } while (!$fn(Unit::get($date, $unit, $rule['scope']), $date));
+                    }
+
+                    $lowerUnits = Unit::lower($unit);
+                    array_walk($lowerUnits, $resetUnit);
+                }
+            };
 
         foreach (Unit::$order as $unit) {
             if (isset($rules[$unit])) {
@@ -150,6 +169,9 @@ class Frequency
                         $parent = current($scopesAbove);
                         $parentUnit = key($scopesAbove);
                         $date->modify('+1 ' . array_search($parent, Unit::$full));
+                        if (isset($rules[$parent]) && isset($rules[$parent]['fn'])) {
+                            $filter($date, $parent, $rules[$parent]);
+                        }
 
                         // reset everything below that parent and above the current unit (except for fixed values)
                         $reset = array_merge(array_diff(Unit::between($parentUnit, $unit), $fixedUnits), array($unit), Unit::lower($unit));
@@ -158,7 +180,7 @@ class Frequency
                         $date->modify('+' . ($rule['fix'] - Unit::$defaults[$unit]) . ' ' . $full);
                     }
                 } elseif (isset($rule['fn'])) {
-
+                    $filter($date, $unit, $rule);
                 }
             }
         }

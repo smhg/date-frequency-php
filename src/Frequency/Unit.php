@@ -1,6 +1,11 @@
 <?php
 namespace Frequency;
 
+$epoch = new \DateTime('0000-01-01T00:00:00');
+$day = 24 * 60 * 60;
+$week = 7 * $day;
+$firstWeekStart = $epoch->format('U') + (8 - $epoch->format('N')) * $day;
+
 class Unit
 {
     public static $order = array('Y', 'M', 'W', 'D', 'h', 'm', 's');
@@ -83,7 +88,9 @@ class Unit
             case 'W':
                 switch ($scope) {
                     case 'E':
-                        throw new Exception('Scope not implemented: week of epoch');
+                        global $week, $firstWeekStart;
+
+                        return floor((abs($firstWeekStart) + $date->format('U') + $date->format('Z')) / $week);
                         break;
                     case 'M':
                         throw new Exception('Scope not implemented: week of month');
