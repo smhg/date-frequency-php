@@ -198,4 +198,13 @@ class FrequencyTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('F(leap)Y1D/WT15H45M0S', (string)(new Frequency('F(leap)Y1D/WT15H45M0S')));
         $this->assertEquals('F(odd)W/E1D/WT15H45M0S', (string)(new Frequency('F(odd)W/E1D/WT15H45M0S')));
     }
+
+    public function testClone()
+    {
+        $frequency = new Frequency('F1DT0H0M0S');
+        $frequency2 = clone $frequency;
+        $frequency2->on('D', 2);
+        $this->assertEquals((string)$frequency, 'F1DT0H0M0S');
+        $this->assertEquals((string)$frequency2, 'F2DT0H0M0S');
+    }
 }
