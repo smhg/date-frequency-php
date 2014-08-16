@@ -131,8 +131,26 @@ class FrequencyTest extends \PHPUnit_Framework_TestCase
     public function testFilter()
     {
         $f = new Frequency('F(odd)W/E1D/WT15H45M0S'); // Mondays of odd weeks at 15:45:00
-//        $this->assertEquals(new \DateTime('2014-08-11T15:45:00'), $f->next(new \DateTime('2014-08-06T00:00:00')));
+        $this->assertEquals(new \DateTime('2014-08-11T15:45:00'), $f->next(new \DateTime('2014-08-06T00:00:00')));
         $this->assertEquals(new \DateTime('2014-08-11T15:45:00'), $f->next(new \DateTime('2014-08-11T00:00:00')));
+
+        Frequency::$fn['weekend'] = function($weekday) {
+          return $weekday === 6 || $weekday === 7;
+        };
+        $f = new Frequency('F(weekend)D/WT12H0M0S'); // Weekends at 12:00:00
+        $this->assertEquals($f->next(new \DateTime('2014-08-20T00:00:00')), new \DateTime('2014-08-23T12:00:00'));
+
+        Frequency::$fn['inSummer'] = function($month) {
+          return $month === 7 || $month === 8;
+        };
+        $f = new Frequency('F(inSummer)M1DT0H0M0S'); // First day of "summer" months at midnight
+        $date = new \DateTime('2014-01-15T00:00:00');
+        $date = $f->next($date);
+        $this->assertEquals($date, new \DateTime('2014-07-01T00:00:00'));
+        $date = $f->next($date->modify('+1 day'));
+        $this->assertEquals($date, new \DateTime('2014-08-01T00:00:00'));
+        $date = $f->next($date->modify('+1 day'));
+        $this->assertEquals($date, new \DateTime('2015-07-01T00:00:00'));
     }
 
     public function testBetween()

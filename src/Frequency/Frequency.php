@@ -141,10 +141,10 @@ class Frequency
                         do {
                             $date->modify('+1 ' . $full);
                         } while (!$fn(Unit::get($date, $unit, $rule['scope']), $date));
-                    }
 
-                    $lowerUnits = Unit::lower($unit);
-                    array_walk($lowerUnits, $resetUnit);
+                        $lowerUnits = Unit::lower($unit);
+                        array_walk($lowerUnits, $resetUnit);
+                    }
                 }
             };
 
@@ -152,7 +152,6 @@ class Frequency
             if (isset($rules[$unit])) {
                 $rule = $rules[$unit];
                 if (isset($rule['fix'])) {
-
                     $datePart = Unit::get($date, $unit, $rule['scope']);
                     $full = array_search($unit, Unit::$full);
 
