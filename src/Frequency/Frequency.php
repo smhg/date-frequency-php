@@ -98,14 +98,21 @@ class Frequency
 
     public function getValue($unit, $scope = null)
     {
+        $rules = $this->rules;
         $unit = Unit::filter($unit);
         $scope = Scope::filter($unit, Unit::filter($scope));
 
-        if (!isset($this->rules[$unit]) || $this->rules[$unit]['scope'] !== $scope) {
+        if (!isset($rules[$unit]) || $rules[$unit]['scope'] !== $scope) {
             return;
         }
 
-        return $this->rules[$unit]['fix'];
+        $rule = $rules[$unit];
+
+        if (isset($rule['fix'])) {
+            return $rule['fix'];
+        } else if (isset($rule['fn'])) {
+            return $rule['fn'];
+        }
     }
 
     public function next(\DateTime $date)

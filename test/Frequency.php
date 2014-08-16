@@ -60,6 +60,9 @@ class FrequencyTest extends \PHPUnit_Framework_TestCase
 
         $frequency->on('D', 3, 'week');
         $this->assertEquals(3, $frequency->getValue('day', 'W'));
+
+        $frequency->on('week', array('fn' => 'odd', 'scope' => 'E'));
+        $this->assertEquals('odd', $frequency->getValue('week', 'epoch'));
     }
 
     public function testNext()
