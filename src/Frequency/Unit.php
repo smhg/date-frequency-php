@@ -1,10 +1,16 @@
 <?php
 namespace Frequency;
 
-$epoch = new \DateTime('0000-01-01T00:00:00');
 $day = 24 * 60 * 60;
-$week = 7 * $day;
-$firstWeekStart = $epoch->format('U') + (8 - $epoch->format('N')) * $day;
+define('DAY', $day);
+
+$week = DAY * 7;
+define('WEEK', $week);
+
+$epoch = new \DateTime('0000-01-01T00:00:00');
+$epochWeekday = $epoch->format('N');
+$firstWeekStart = $epoch->format('U') + ($epochWeekday === 1 ? 0 : 8 - $epochWeekday) * DAY;
+define('FIRST_WEEK_START', $firstWeekStart);
 
 class Unit
 {
@@ -88,9 +94,7 @@ class Unit
             case 'W':
                 switch ($scope) {
                     case 'E':
-                        global $week, $firstWeekStart;
-
-                        return floor((abs($firstWeekStart) + $date->format('U') + $date->format('Z')) / $week);
+                        return floor((abs(FIRST_WEEK_START) + $date->format('U') + $date->format('Z')) / WEEK);
                         break;
                     case 'M':
                         throw new Exception('Scope not implemented: week of month');
