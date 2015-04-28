@@ -49,6 +49,20 @@ class Unit
         return;
     }
 
+    public static function compare($left, $right)
+    {
+        $leftPos = array_search(self::$order, $left);
+        $rightPos = array_search(self::$order, $right);
+
+        if ($leftPos < $rightPos) {
+          return -1;
+        } else if ($leftPos === $rightPos) {
+          return 0;
+        } else {
+          return 1;
+        }
+    }
+
     public static function lower($unit)
     {
         $pos = array_search($unit, self::$order);
