@@ -12,6 +12,9 @@ use Frequency\Exception;
 Frequency::$fn['odd'] = function($number) {
         return $number % 2 !== 0;
     };
+Frequency::$fn['even'] = function($number) {
+        return $number % 2 === 0;
+    };
 Frequency::$fn['leap'] = function($year) {
         return $year % 4 === 0; // just a demo
     };
@@ -134,8 +137,11 @@ class FrequencyTest extends \PHPUnit_Framework_TestCase
     public function testFilter()
     {
         $f = new Frequency('F(odd)W/E1D/WT15H45M0S'); // Mondays of odd weeks at 15:45:00
-        $this->assertEquals(new \DateTime('2014-08-11T15:45:00'), $f->next(new \DateTime('2014-08-06T00:00:00')));
+        $this->assertEquals(new \DateTime('2015-05-04T15:45:00'), $f->next(new \DateTime('2015-04-29T00:00:00')));
         $this->assertEquals(new \DateTime('2014-08-11T15:45:00'), $f->next(new \DateTime('2014-08-11T00:00:00')));
+
+        $f = new Frequency('F(even)W/ET9H30M0S'); // Every day of even weeks at 9:30:00
+        $this->assertEquals(new \DateTime('2015-05-11T09:30:00'), $f->next(new \DateTime('2015-05-04T00:00:00')));
 
         Frequency::$fn['weekend'] = function($weekday) {
           return $weekday === 6 || $weekday === 7;
