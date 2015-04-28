@@ -130,11 +130,18 @@ class Frequency
                 return Scope::getDefault($u);
             }, array_keys(Unit::$defaults)));
 
-        $resetUnit = function ($u) use (&$date, $scopes) {
-                if (isset($scopes[$u])) {
-                    $full = array_search($u, Unit::$full);
-                    $date->modify('-' . (Unit::get($date, $u, $scopes[$u]) - Unit::$defaults[$u]) . ' ' . $full);
-                }
+        $resetUnit = function ($parent = null) use (&$date, $scopes) {
+                // parent = optional parent unit below which we are doing the reset
+                return function ($u) use (&$date, $scopes, $parent) {
+                    if (isset($scopes[$u])) {
+                        $full = array_search($u, Unit::$full);
+                        if ($parent && Unit::compare($scopes[$u], $parent) === -1) {
+                            $date->modify('-' . (Unit::get($date, $u, $parent) - Unit::$defaults[$u]) . ' ' . $full);
+                        } else {
+                            $date->modify('-' . (Unit::get($date, $u, $scopes[$u]) - Unit::$defaults[$u]) . ' ' . $full);
+                        }
+                    }
+                };
             };
 
         $filter = function ($date, $unit, $rule = null) use ($resetUnit) {
@@ -150,7 +157,7 @@ class Frequency
                         } while (!$fn(Unit::get($date, $unit, $rule['scope']), $date));
 
                         $lowerUnits = Unit::lower($unit);
-                        array_walk($lowerUnits, $resetUnit);
+                        array_walk($lowerUnits, $resetUnit($unit));
                     }
                 }
             };
@@ -167,13 +174,15 @@ class Frequency
 
                         // reset everything below current unit
                         $lowerUnits = Unit::lower($unit);
-                        array_walk($lowerUnits, $resetUnit);
+                        array_walk($lowerUnits, $resetUnit($unit));
                     } else if ($datePart > $rule['fix']) {
-                        // add one to closest non fixed parent
+                        // find closest non fixed parent
                         $scopesAbove = array_diff(array_intersect_key($scopes, array_flip(array_merge(Unit::higher($unit), array($unit)))), $fixedUnits);
                         end($scopesAbove);
                         $parent = current($scopesAbove);
                         $parentUnit = key($scopesAbove);
+
+                        // raise that parent
                         $date->modify('+1 ' . array_search($parent, Unit::$full));
                         if (isset($rules[$parent]) && isset($rules[$parent]['fn'])) {
                             $filter($date, $parent, $rules[$parent]);
@@ -181,7 +190,7 @@ class Frequency
 
                         // reset everything below that parent and above the current unit (except for fixed values)
                         $reset = array_merge(array_diff(Unit::between($parentUnit, $unit), $fixedUnits), array($unit), Unit::lower($unit));
-                        array_walk($reset, $resetUnit);
+                        array_walk($reset, $resetUnit());
 
                         $date->modify('+' . ($rule['fix'] - Unit::$defaults[$unit]) . ' ' . $full);
                     }
