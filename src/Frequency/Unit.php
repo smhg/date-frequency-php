@@ -51,8 +51,8 @@ class Unit
 
     public static function compare($left, $right)
     {
-        $leftPos = array_search(self::$order, $left);
-        $rightPos = array_search(self::$order, $right);
+        $leftPos = array_search($left, self::$order);
+        $rightPos = array_search($right, self::$order);
 
         if ($leftPos < $rightPos) {
           return -1;
