@@ -156,10 +156,11 @@ class Frequency
                             $date->modify('+1 ' . $full);
                         } while (!$fn(Unit::get($date, $unit, $rule['scope']), $date));
 
-                        $lowerUnits = Unit::lower($unit);
-                        array_walk($lowerUnits, $resetUnit($unit));
+                        return true;
                     }
                 }
+
+                return false;
             };
 
         foreach (Unit::$order as $unit) {
@@ -195,7 +196,12 @@ class Frequency
                         $date->modify('+' . ($rule['fix'] - Unit::$defaults[$unit]) . ' ' . $full);
                     }
                 } elseif (isset($rule['fn'])) {
-                    $filter($date, $unit, $rule);
+                    $filterChangedSomething = $filter($date, $unit, $rule);
+
+                    if ($filterChangedSomething) {
+                        $lowerUnits = Unit::lower($unit);
+                        array_walk($lowerUnits, $resetUnit($unit));
+                    }
                 }
             }
         }
