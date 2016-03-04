@@ -9,15 +9,17 @@ require_once __DIR__ . '/../src/Frequency/Exception.php';
 use Frequency\Frequency;
 use Frequency\Exception;
 
-Frequency::$fn['odd'] = function($number) {
-        return $number % 2 !== 0;
-    };
 Frequency::$fn['even'] = function($number) {
-        return $number % 2 === 0;
-    };
+    return ($number % 2) === 0;
+};
+
+Frequency::$fn['odd'] = function($number) {
+    return ($number % 2) === 1 || ($number % 2) === -1;
+};
+
 Frequency::$fn['leap'] = function($year) {
-        return $year % 4 === 0; // just a demo
-    };
+    return $year % 4 === 0; // just a demo
+};
 
 class FrequencyTest extends \PHPUnit_Framework_TestCase
 {
@@ -160,6 +162,21 @@ class FrequencyTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($date, new \DateTime('2014-08-01T00:00:00'));
         $date = $f->next($date->modify('+1 day'));
         $this->assertEquals($date, new \DateTime('2015-07-01T00:00:00'));
+
+        $f = new Frequency('F(odd)W/E5D/WT13H0M0S');
+        $date = new \DateTime('2016-02-26T13:30:00');
+        $date = $f->next($date);
+        $this->assertEquals(new \DateTime('2016-03-11T13:00:00'), $date);
+
+        $f = new Frequency('F(odd)W/E5D/WT13H0M0S');
+        $date = new \DateTime('2016-02-26T14:30:00');
+        $date = $f->next($date);
+        $this->assertEquals(new \DateTime('2016-03-11T13:00:00'), $date);
+
+        $f = new Frequency('F(even)W/E5D/WT13H0M0S');
+        $date = new \DateTime('2016-03-04T13:30:00');
+        $date = $f->next($date);
+        $this->assertEquals(new \DateTime('2016-03-18T13:00:00'), $date);
     }
 
     public function testBetween()
