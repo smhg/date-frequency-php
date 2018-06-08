@@ -8,6 +8,7 @@ require_once __DIR__ . '/../src/Frequency/Exception.php';
 
 use Frequency\Frequency;
 use Frequency\Exception;
+use PHPUnit\Framework\TestCase;
 
 Frequency::$fn['even'] = function($number) {
     return ($number % 2) === 0;
@@ -21,7 +22,7 @@ Frequency::$fn['leap'] = function($year) {
     return $year % 4 === 0; // just a demo
 };
 
-class FrequencyTest extends \PHPUnit_Framework_TestCase
+class FrequencyTest extends TestCase
 {
     public function testValidString()
     {

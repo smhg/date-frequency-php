@@ -4,8 +4,9 @@ error_reporting(E_ALL | E_STRICT);
 require_once __DIR__ . '/../src/Frequency/Unit.php';
 
 use Frequency\Unit;
+use PHPUnit\Framework\TestCase;
 
-class UnitTest extends \PHPUnit_Framework_TestCase
+class UnitTest extends TestCase
 {
     public function testCompare()
     {
