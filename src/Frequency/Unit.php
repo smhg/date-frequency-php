@@ -108,13 +108,13 @@ class Unit
             case 'W':
                 switch ($scope) {
                     case 'E':
-                        return floor((abs(FIRST_WEEK_START) + $date->format('U') + $date->format('Z')) / WEEK);
-                        break;
-                    case 'M':
-                        throw new Exception('Scope not implemented: week of month');
+                        throw new Exception('Scope not implemented: week of epoch');
                         break;
                     case 'Y':
                         return (int)$date->format('W');
+                        break;
+                    case 'M':
+                        throw new Exception('Scope not implemented: week of month');
                         break;
                 }
                 break;
@@ -124,7 +124,7 @@ class Unit
                         throw new Exception('Scope not implemented: day of epoch');
                         break;
                     case 'Y':
-                        return (int)$date->format('z');
+                        return (int)$date->format('z') + 1;
                         break;
                     case 'W':
                         return (int)$date->format('N');

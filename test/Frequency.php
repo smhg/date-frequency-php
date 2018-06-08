@@ -139,11 +139,11 @@ class FrequencyTest extends TestCase
 
     public function testFilter()
     {
-        $f = new Frequency('F(odd)W/E1D/WT15H45M0S'); // Mondays of odd weeks at 15:45:00
+        $f = new Frequency('F(odd)W1D/WT15H45M0S'); // Mondays of odd weeks at 15:45:00
         $this->assertEquals(new \DateTime('2015-05-04T15:45:00'), $f->next(new \DateTime('2015-04-29T00:00:00')));
         $this->assertEquals(new \DateTime('2014-08-11T15:45:00'), $f->next(new \DateTime('2014-08-11T00:00:00')));
 
-        $f = new Frequency('F(even)W/ET9H30M0S'); // Every day of even weeks at 9:30:00
+        $f = new Frequency('F(even)WT9H30M0S'); // Every day of even weeks at 9:30:00
         $this->assertEquals(new \DateTime('2015-05-11T09:30:00'), $f->next(new \DateTime('2015-05-04T00:00:00')));
 
         Frequency::$fn['weekend'] = function($weekday) {
@@ -164,20 +164,20 @@ class FrequencyTest extends TestCase
         $date = $f->next($date->modify('+1 day'));
         $this->assertEquals($date, new \DateTime('2015-07-01T00:00:00'));
 
-        $f = new Frequency('F(odd)W/E5D/WT13H0M0S');
+        $f = new Frequency('F(odd)W5D/WT13H0M0S');
         $date = new \DateTime('2016-02-26T13:30:00');
         $date = $f->next($date);
-        $this->assertEquals(new \DateTime('2016-03-11T13:00:00'), $date);
+        $this->assertEquals(new \DateTime('2016-03-04T13:00:00'), $date);
 
-        $f = new Frequency('F(odd)W/E5D/WT13H0M0S');
+        $f = new Frequency('F(odd)W5D/WT13H0M0S');
         $date = new \DateTime('2016-02-26T14:30:00');
         $date = $f->next($date);
-        $this->assertEquals(new \DateTime('2016-03-11T13:00:00'), $date);
+        $this->assertEquals(new \DateTime('2016-03-04T13:00:00'), $date);
 
-        $f = new Frequency('F(even)W/E5D/WT13H0M0S');
+        $f = new Frequency('F(even)W5D/WT13H0M0S');
         $date = new \DateTime('2016-03-04T13:30:00');
         $date = $f->next($date);
-        $this->assertEquals(new \DateTime('2016-03-18T13:00:00'), $date);
+        $this->assertEquals(new \DateTime('2016-03-11T13:00:00'), $date);
     }
 
     public function testBetween()
@@ -223,7 +223,7 @@ class FrequencyTest extends TestCase
         $this->assertEquals('F1D/WT15H45M0S', (string)$frequency);
 
         $this->assertEquals('F(leap)Y1D/WT15H45M0S', (string)(new Frequency('F(leap)Y1D/WT15H45M0S')));
-        $this->assertEquals('F(odd)W/E1D/WT15H45M0S', (string)(new Frequency('F(odd)W/E1D/WT15H45M0S')));
+        $this->assertEquals('F(odd)W1D/WT15H45M0S', (string)(new Frequency('F(odd)W1D/WT15H45M0S')));
     }
 
     public function testClone()
