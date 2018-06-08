@@ -25,5 +25,8 @@
         "psr-0": {
             "Frequency": "src/"
         }
+    },
+    "scripts": {
+      "test": "APPLICATION_ENV=test phpunit"
     }
 }
