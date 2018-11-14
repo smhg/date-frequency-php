@@ -7,10 +7,10 @@ define('DAY', $day);
 $week = DAY * 7;
 define('WEEK', $week);
 
-$epoch = new \DateTime('0000-01-01T00:00:00');
-$epochWeekday = $epoch->format('N');
-$firstWeekStart = $epoch->format('U') + ($epochWeekday === 1 ? 0 : 8 - $epochWeekday) * DAY;
-define('FIRST_WEEK_START', $firstWeekStart);
+function weekOfEpoch (\DateTime $date) {
+    $epoch = new \DateTime('1969-12-29T00:00:00', $date->getTimezone());
+    return floor(($date->format('U') - $epoch->format('U') + $epoch->format('Z') - $date->format('Z')) / WEEK);
+}
 
 class Unit
 {
@@ -108,7 +108,7 @@ class Unit
             case 'W':
                 switch ($scope) {
                     case 'E':
-                        throw new Exception('Scope not implemented: week of epoch');
+                        return (int)weekOfEpoch($date);
                         break;
                     case 'Y':
                         return (int)$date->format('W');
