@@ -22,6 +22,20 @@ Frequency::$fn['leap'] = function($year) {
     return $year % 4 === 0; // just a demo
 };
 
+Frequency::$fn['inThirdFullWeek'] = function($week, $date) {
+    $firstDay = clone $date;
+    $firstDay->modify('first day of this month')
+        ->setTime(0, 0, 0);
+
+    $start = clone $firstDay;
+    $start->modify('+' . ((8 - (int)$firstDay->format('N')) % 7) + 14 . ' days');
+
+    $end = clone $start;
+    $end->modify('+7 days');
+
+    return $start <= $date && $date < $end;
+};
+
 class FrequencyTest extends TestCase
 {
     public function testValidString()
@@ -132,7 +146,6 @@ class FrequencyTest extends TestCase
 
         $this->assertEquals(new \DateTime('2014-03-17T15:45:00'), $frequency->next(new \DateTime('2014-03-10T15:46:00')));
 
-
         $frequency = new Frequency('F1D/WT15H45M0S');
         $this->assertEquals(new \DateTime('2014-03-10T15:45:00'), $frequency->next(new \DateTime('2014-03-04T00:00:00')));
     }
@@ -178,6 +191,11 @@ class FrequencyTest extends TestCase
         $date = new \DateTime('2016-03-04T13:30:00');
         $date = $f->next($date);
         $this->assertEquals(new \DateTime('2016-03-11T13:00:00'), $date);
+
+        $f = new Frequency('F(inThirdFullWeek)W3D/WT9H30M0S');
+        $date = new \DateTime('2018-11-22T12:00:00');
+        $date = $f->next($date);
+        $this->assertEquals(new \DateTime('2018-12-19T09:30:00'), $date);
     }
 
     public function testBetween()
