@@ -192,10 +192,10 @@ class FrequencyTest extends TestCase
         $date = $f->next($date);
         $this->assertEquals(new \DateTime('2016-03-11T13:00:00'), $date);
 
-        $f = new Frequency('F(inThirdFullWeek)W3D/WT9H30M0S');
-        $date = new \DateTime('2018-11-22T12:00:00');
+        $f = new Frequency('F(inThirdFullWeek)DT9H30M0S');
+        $date = new \DateTime('2018-11-01T12:00:00');
         $date = $f->next($date);
-        $this->assertEquals(new \DateTime('2018-12-19T09:30:00'), $date);
+        $this->assertEquals(new \DateTime('2018-11-19T09:30:00'), $date);
     }
 
     public function testBetween()
