@@ -7,13 +7,13 @@ class Scope
         'Y' => array('E'),
         'M' => array('Y', 'E'),
         'W' => array('Y', 'M', 'E'),
-        'D' => array('M', 'W', 'Y', 'E'),
-        'h' => array('D', 'W', 'M', 'Y', 'E'),
-        'm' => array('h', 'D', 'W', 'M', 'Y', 'E'),
-        's' => array('m', 'h', 'D', 'W', 'M', 'Y', 'E')
+        'D' => array('M', 'Y', 'W', 'E'),
+        'h' => array('D'),
+        'm' => array('h'),
+        's' => array('m')
     );
 
-    public static function filter($unit, $scope)
+    public static function filter($unit, $scope = null)
     {
         if (!isset(self::$scopes[$unit])) {
             throw new Exception('Invalid unit');
