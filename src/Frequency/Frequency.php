@@ -33,7 +33,7 @@ class Frequency
                 if (!$value) {
                     $value = Unit::$defaults[$unit];
                 } elseif (substr($value, 0, 1) === '(') {
-                    $value = substr($value, 1, count($value) - 2);
+                    $value = substr($value, 1, strlen($value) - 2);
                 } else {
                     $value = (int)$value;
                 }
