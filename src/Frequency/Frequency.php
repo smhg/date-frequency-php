@@ -1,6 +1,10 @@
 <?php
 namespace Frequency;
 
+define('STRING_VALIDATION', '/^F((\d+|\(\w+\))[YMWD](?:\/[EYMW])?)*(?:T((\d+|\(\w+\))[HMS](?:\/[EYMWDH])?)*)?$/');
+
+define('RULE_PARSER', '/(\d+|\(\w+\))([YMWDHS])(?:\/([EYMWDH]))?/');
+
 class Frequency
 {
     public static $fn = array();
@@ -12,40 +16,43 @@ class Frequency
         $rules = array();
 
         if (is_string($str)) {
-            $units = array('Y', 'M', 'W', 'D', 'h', 'm', 's');
-            $pattern = implode('', array(
-                    '/^F',
-                    '(?:(\\d+|\\(\\w*\\))Y(?:\\/([E]{1}))?)?',
-                    '(?:(\\d+|\\(\\w*\\))M(?:\\/([EY]{1}))?)?',
-                    '(?:(\\d+|\\(\\w*\\))W(?:\\/([EYM]{1}))?)?',
-                    '(?:(\\d+|\\(\\w*\\))D(?:\\/([EYMW]{1}))?)?',
-                    '(?:T',
-                    '(?:(\\d+|\\(\\w*\\))H(?:\\/([EYMWD]{1}))?)?',
-                    '(?:(\\d+|\\(\\w*\\))M(?:\\/([EYMWDH]{1}))?)?',
-                    '(?:(\\d+|\\(\\w*\\))S(?:\\/([EYMWDHM]{1}))?)?',
-                    ')?$/'
-                ));
-
-            $matches = array();
-            if (!preg_match_all($pattern, $str, $matches)) {
+            if (!preg_match(STRING_VALIDATION, $str)) {
                 throw new Exception('Invalid frequency \'' . $str . '\'');
             }
 
-            array_shift($matches);
-            $length = count($matches);
-            for ($i = 0;$i < count($matches);$i += 2) {
-                if (strlen($matches[$i][0]) > 0) {
-                    $u = $units[$i / 2];
+            $parts = preg_split('/T(?![^(]*\))/', $str);
 
-                    $rules[$u] = array();
+            $addRule = function ($value, $unit, $scope = null) use (&$rules) {
+                if (!($scope = Scope::filter($unit, $scope))) {
+                    return;
+                }
 
-                    $scope = Scope::filter($u, $matches[$i + 1][0]);
+                $scopes = isset($rules[$unit]) ? $rules[$unit] : array();
 
-                    if (substr($matches[$i][0], 0, 1) === '(') {
-                        $rules[$u][$scope] = trim($matches[$i][0], ' ()');
-                    } else {
-                        $rules[$u][$scope] = (int)$matches[$i][0];
-                    }
+                if (!$value) {
+                    $value = Unit::$defaults[$unit];
+                } elseif (substr($value, 0, 1) === '(') {
+                    $value = substr($value, 1, count($value) - 2);
+                } else {
+                    $value = (int)$value;
+                }
+
+                $scopes[$scope] = $value;
+
+                $rules[$unit] = $scopes;
+            };
+
+            $result = array();
+
+            preg_match_all(RULE_PARSER, $parts[0], $matches, PREG_SET_ORDER);
+            foreach($matches as $rule) {
+                $addRule($rule[1], $rule[2], isset($rule[3]) ? $rule[3] : null);
+            }
+
+            if (isset($parts[1])) {
+                preg_match_all(RULE_PARSER, $parts[1], $matches, PREG_SET_ORDER);
+                foreach($matches as $rule) {
+                    $addRule($rule[1], strtolower($rule[2]));
                 }
             }
         } elseif (is_array($str)) {
@@ -91,17 +98,15 @@ class Frequency
         $unit = Unit::filter($unit);
         $scope = Scope::filter($unit, Unit::filter($scope));
 
-        if (!isset($rules[$unit]) || $rules[$unit]['scope'] !== $scope) {
+        if (!isset($rules[$unit])) {
             return;
         }
 
-        $rule = $rules[$unit];
-
-        if (isset($rule['fix'])) {
-            return $rule['fix'];
-        } else if (isset($rule['fn'])) {
-            return $rule['fn'];
+        if (!isset($rules[$unit][$scope])) {
+            return;
         }
+
+        return $rules[$unit][$scope];
     }
 
     public function next(\DateTime $date)
@@ -234,16 +239,22 @@ class Frequency
                     $hasTime = true;
                 }
 
-                if (isset($rule['fix'])) {
-                    $result .= $rule['fix'];
-                } else {
-                    $result .= sprintf('(%s)', $rule['fn']);
-                }
+                foreach (Scope::$scopes[$unit] as $scope) {
+                    if (isset($rule[$scope])) {
+                        $value = $rule[$scope];
 
-                $result .= strtoupper($unit);
+                        if (is_numeric($value)) {
+                            $result .= $value;
+                        } else {
+                            $result .= sprintf('(%s)', $value);
+                        }
 
-                if ($rule['scope'] !== Scope::getDefault($unit)) {
-                    $result .= '/' . $rule['scope'];
+                        $result .= strtoupper($unit);
+
+                        if ($scope !== Scope::getDefault($unit)) {
+                            $result .= '/' . $scope;
+                        }
+                    }
                 }
             }
         }

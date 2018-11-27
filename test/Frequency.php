@@ -81,8 +81,13 @@ class FrequencyTest extends TestCase
         $frequency->on('D', 3, 'week');
         $this->assertEquals(3, $frequency->getValue('day', 'W'));
 
-        $frequency->on('week', array('E' => 'odd'));
+        $frequency->on('week', 'odd', 'E');
         $this->assertEquals('odd', $frequency->getValue('week', 'epoch'));
+
+        $frequency = new Frequency('F5D2D/WT10H');
+        $this->assertEquals(5, $frequency->getValue('day'));
+        $this->assertEquals(5, $frequency->getValue('day', 'month'));
+        $this->assertEquals(2, $frequency->getValue('day', 'week'));
     }
 
     public function testNext()
@@ -230,6 +235,18 @@ class FrequencyTest extends TestCase
         $frequency = new Frequency('FT15H45M');
         $this->assertEquals('FT15H45M', (string)$frequency);
 
+        $frequency = new Frequency('F1D/WT15H45M');
+        $this->assertEquals('F1D/WT15H45M', (string)$frequency);
+
+        $frequency = new Frequency('F1D/WT15H45M0S');
+        $this->assertEquals('F1D/WT15H45M0S', (string)$frequency);
+
+        $this->assertEquals('F(leap)Y1D/WT15H45M0S', (string)(new Frequency('F(leap)Y1D/WT15H45M0S')));
+        $this->assertEquals('F(odd)W1D/WT15H45M0S', (string)(new Frequency('F(odd)W1D/WT15H45M0S')));
+
+        $frequency = new Frequency('F(inThirdFullWeek)WT9H');
+        $this->assertEquals('F(inThirdFullWeek)WT9H', (string)$frequency);
+
         $frequency = new Frequency();
         $frequency->on('month', 2)
             ->on('hour', 10);
@@ -240,14 +257,29 @@ class FrequencyTest extends TestCase
             ->on('hour', 10);
         $this->assertEquals('F2D/WT10H', (string)$frequency);
 
-        $frequency = new Frequency('F1D/WT15H45M');
-        $this->assertEquals('F1D/WT15H45M', (string)$frequency);
 
-        $frequency = new Frequency('F1D/WT15H45M0S');
-        $this->assertEquals('F1D/WT15H45M0S', (string)$frequency);
+        $frequency = new Frequency();
+        $frequency->on('day', 2, 'week')
+            ->on('hour', 10);
+        $this->assertEquals('F2D/WT10H', (string)$frequency);
 
-        $this->assertEquals('F(leap)Y1D/WT15H45M0S', (string)(new Frequency('F(leap)Y1D/WT15H45M0S')));
-        $this->assertEquals('F(odd)W1D/WT15H45M0S', (string)(new Frequency('F(odd)W1D/WT15H45M0S')));
+
+        $frequency = new Frequency();
+        $frequency->on('day', 2, 'week') // Tuesdays
+            ->on('day', 5) // 5th day of the month
+            ->on('hour', 10);
+        $this->assertEquals('F5D2D/WT10H', (string)$frequency);
+
+        $frequency = new Frequency(array('s' => array('m' => 0)));
+        $frequency->on('minute', 0)
+            ->on('hour', 10);
+        $this->assertEquals('FT10H0M0S', (string)$frequency);
+
+        $frequency = new Frequency(array(
+            'D' => array('M' => 'inThirdFullWeek'),
+            'h' => array('D' => 9)
+        ));
+        $this->assertEquals('F(inThirdFullWeek)DT9H', (string)$frequency);
     }
 
     public function testClone()
