@@ -106,7 +106,6 @@ class FrequencyTest extends TestCase
 
         $frequency = new Frequency();
         $start = new \DateTime('2013-09-02T11:10:20');
-
         $this->assertEquals(new \DateTime('2013-09-02T11:10:20'), $frequency->next($start));
 
         $frequency->on('h', 10); // each day at 10:00:00
@@ -206,7 +205,7 @@ class FrequencyTest extends TestCase
         $this->assertEquals(new \DateTime('2018-11-19T09:30:00'), $date);
 
         $f = new Frequency('F(odd)D4D/WT30M');
-        $this->assertEquals(new \DateTime('2018-10-25T00:00:00'), $f->next(new \DateTime('2018-11-29T00:30:00')));
+        $this->assertEquals(new \DateTime('2018-11-29T00:30:00'), $f->next(new \DateTime('2018-11-25T00:00:00')));
     }
 
     public function testBetween()
