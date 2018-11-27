@@ -96,53 +96,53 @@ class FrequencyTest extends TestCase
         $this->assertTrue($frequency->next(new \DateTime()) instanceof \DateTime);
 
         $start = new \DateTime('2013-09-02T00:00:00');
-        $this->assertEquals($frequency->next($start), new \DateTime('2013-09-02T00:00:00'));
+        $this->assertEquals(new \DateTime('2013-09-02T00:00:00'), $frequency->next($start));
 
         $frequency->on('h', 10); // each day at 10:00:00
-        $this->assertEquals($frequency->next($start), new \DateTime('2013-09-02T10:00:00'));
+        $this->assertEquals(new \DateTime('2013-09-02T10:00:00'), $frequency->next($start));
 
         $frequency->on('h', 0); // each day at 00:00:00
-        $this->assertEquals($frequency->next($start), new \DateTime('2013-09-02T00:00:00'));
+        $this->assertEquals(new \DateTime('2013-09-02T00:00:00'), $frequency->next($start));
 
         $frequency = new Frequency();
         $start = new \DateTime('2013-09-02T11:10:20');
 
-        $this->assertEquals($frequency->next($start), new \DateTime('2013-09-02T11:10:20'));
+        $this->assertEquals(new \DateTime('2013-09-02T11:10:20'), $frequency->next($start));
 
         $frequency->on('h', 10); // each day at 10:00:00
-        $this->assertEquals($frequency->next($start), new \DateTime('2013-09-03T10:00:00'));
+        $this->assertEquals(new \DateTime('2013-09-03T10:00:00'), $frequency->next($start));
 
         $frequency->on('h', 0); // each day at 00:00:00
-        $this->assertEquals($frequency->next($start), new \DateTime('2013-09-03T00:00:00'));
+        $this->assertEquals(new \DateTime('2013-09-03T00:00:00'), $frequency->next($start));
 
         $frequency = new Frequency();
         $start = new \DateTime('2013-07-02T00:00:00');
 
         $frequency->on('month', 8); // each August 1st at 00:00:00
-        $this->assertEquals($frequency->next($start), new \DateTime('2013-08-01T00:00:00'));
+        $this->assertEquals(new \DateTime('2013-08-01T00:00:00'), $frequency->next($start));
 
         $frequency = new Frequency();
         $start = new \DateTime('2013-09-02T00:00:00');
 
         $frequency->on('month', 3); // each March 1st at 00:00:00
-        $this->assertEquals($frequency->next($start), new \DateTime('2014-03-01T00:00:00'));
+        $this->assertEquals(new \DateTime('2014-03-01T00:00:00'), $frequency->next($start));
 
         $frequency->on('month', 3)
             ->on('minute', 30); // each March 1st every 30 minutes
-        $this->assertEquals($frequency->next($start), new \DateTime('2014-03-01T00:30:00'));
+        $this->assertEquals(new \DateTime('2014-03-01T00:30:00'), $frequency->next($start));
 
         $frequency = new Frequency();
         $start = new \DateTime('2013-09-02T00:00:00');
 
         $frequency->on('month', 11); // each November 1st at 00:00:00 (across DST)
-        $this->assertEquals($frequency->next($start), new \DateTime('2013-11-01T00:00:00'));
+        $this->assertEquals(new \DateTime('2013-11-01T00:00:00'), $frequency->next($start));
 
         $frequency = new Frequency();
         $start = new \DateTime('2013-09-02T11:10:20');
 
         $frequency->on('hour', 10)
             ->on('day', 3, 'week'); // each Wednesday at 10:00:00
-        $this->assertEquals($frequency->next($start), new \DateTime('2013-09-04T10:00:00'));
+        $this->assertEquals(new \DateTime('2013-09-04T10:00:00'), $frequency->next($start));
 
         $frequency = new Frequency('F1D/WT15H45M');
         $this->assertEquals(new \DateTime('2014-03-10T15:45:00'), $frequency->next(new \DateTime('2014-03-10T00:00:00')));
@@ -171,7 +171,7 @@ class FrequencyTest extends TestCase
           return $weekday === 6 || $weekday === 7;
         };
         $f = new Frequency('F(weekend)D/WT12H0M0S'); // Weekends at 12:00:00
-        $this->assertEquals($f->next(new \DateTime('2014-08-20T00:00:00')), new \DateTime('2014-08-23T12:00:00'));
+        $this->assertEquals(new \DateTime('2014-08-23T12:00:00'), $f->next(new \DateTime('2014-08-20T00:00:00')));
 
         Frequency::$fn['inSummer'] = function($month) {
           return $month === 7 || $month === 8;
@@ -179,11 +179,11 @@ class FrequencyTest extends TestCase
         $f = new Frequency('F(inSummer)M1DT0H0M0S'); // First day of "summer" months at midnight
         $date = new \DateTime('2014-01-15T00:00:00');
         $date = $f->next($date);
-        $this->assertEquals($date, new \DateTime('2014-07-01T00:00:00'));
+        $this->assertEquals(new \DateTime('2014-07-01T00:00:00'), $date);
         $date = $f->next($date->modify('+1 day'));
-        $this->assertEquals($date, new \DateTime('2014-08-01T00:00:00'));
+        $this->assertEquals(new \DateTime('2014-08-01T00:00:00'), $date);
         $date = $f->next($date->modify('+1 day'));
-        $this->assertEquals($date, new \DateTime('2015-07-01T00:00:00'));
+        $this->assertEquals(new \DateTime('2015-07-01T00:00:00'), $date);
 
         $f = new Frequency('F(odd)W5D/WT13H0M0S');
         $date = new \DateTime('2016-02-26T13:30:00');
@@ -287,7 +287,7 @@ class FrequencyTest extends TestCase
         $frequency = new Frequency('F1DT0H0M0S');
         $frequency2 = clone $frequency;
         $frequency2->on('D', 2);
-        $this->assertEquals((string)$frequency, 'F1DT0H0M0S');
-        $this->assertEquals((string)$frequency2, 'F2DT0H0M0S');
+        $this->assertEquals('F1DT0H0M0S', (string)$frequency);
+        $this->assertEquals('F2DT0H0M0S', (string)$frequency2);
     }
 }
