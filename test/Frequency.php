@@ -47,12 +47,12 @@ class FrequencyTest extends TestCase
         $this->assertEquals(6, $frequency->getValue('D', 'W'));
 
         $frequency = new Frequency('F3D/WT10H0M0S');
-        $this->assertEquals(3, $frequency->getValue('D', 'W'));
+        $this->assertEquals(3, $frequency->getValue('D', 'week'));
         $this->assertEquals(10, $frequency->getValue('h'));
         $this->assertEquals(0, $frequency->getValue('m'));
         $this->assertEquals(0, $frequency->getValue('s'));
 
-        $frequency = new Frequency(array('h' => array('fix' => 9)));
+        $frequency = new Frequency(array('h' => array('D' => 9)));
         $this->assertEquals(9, $frequency->getValue('h'));
     }
 
@@ -81,7 +81,7 @@ class FrequencyTest extends TestCase
         $frequency->on('D', 3, 'week');
         $this->assertEquals(3, $frequency->getValue('day', 'W'));
 
-        $frequency->on('week', array('fn' => 'odd', 'scope' => 'E'));
+        $frequency->on('week', array('E' => 'odd'));
         $this->assertEquals('odd', $frequency->getValue('week', 'epoch'));
     }
 
@@ -148,6 +148,9 @@ class FrequencyTest extends TestCase
 
         $frequency = new Frequency('F1D/WT15H45M0S');
         $this->assertEquals(new \DateTime('2014-03-10T15:45:00'), $frequency->next(new \DateTime('2014-03-04T00:00:00')));
+
+        $frequency = new Frequency('F5D/M2D/WT12H0M0S');
+        $this->assertEquals(new \DateTime('2019-02-05T12:00:00'), $frequency->next(new \DateTime('2018-11-25T00:00:00')));
     }
 
     public function testFilter()
@@ -196,6 +199,9 @@ class FrequencyTest extends TestCase
         $date = new \DateTime('2018-11-01T12:00:00');
         $date = $f->next($date);
         $this->assertEquals(new \DateTime('2018-11-19T09:30:00'), $date);
+
+        $f = new Frequency('F(odd)D4D/WT30M');
+        $this->assertEquals(new \DateTime('2018-10-25T00:00:00'), $f->next(new \DateTime('2018-11-29T00:30:00')));
     }
 
     public function testBetween()
