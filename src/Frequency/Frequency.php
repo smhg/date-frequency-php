@@ -39,14 +39,12 @@ class Frequency
 
                     $rules[$u] = array();
 
-                    if (substr($matches[$i][0], 0, 1) === '(') {
-                        $rules[$u]['fn'] = trim($matches[$i][0], ' ()');
-                    } else {
-                        $rules[$u]['fix'] = (int)$matches[$i][0];
-                    }
+                    $scope = Scope::filter($u, $matches[$i + 1][0]);
 
-                    if ($matches[$i + 1][0]) {
-                        $rules[$u]['scope'] = $matches[$i + 1][0];
+                    if (substr($matches[$i][0], 0, 1) === '(') {
+                        $rules[$u][$scope] = trim($matches[$i][0], ' ()');
+                    } else {
+                        $rules[$u][$scope] = (int)$matches[$i][0];
                     }
                 }
             }
@@ -55,11 +53,13 @@ class Frequency
         }
 
         foreach ($rules as $unit => $rule) {
-            $this->on($unit, $rule);
+            foreach ($rule as $scope => $value) {
+                $this->on($unit, $value, $scope);
+            }
         }
     }
 
-    public function on($unit, $options = null)
+    public function on($unit, $value, $scope = null)
     {
         $unit = Unit::filter($unit);
 
@@ -67,31 +67,20 @@ class Frequency
             throw new Exception('Invalid unit');
         }
 
-        if (is_numeric($options)) {
-            // second parameter = fix
-            $options = array(
-                'fix' => $options
-            );
-            if (func_num_args() === 3) {
-                $options['scope'] = func_get_arg(2);
+        $scope = Scope::filter($unit, Unit::filter($scope));
+
+        $rule = array($scope => $value);
+
+        if (!is_numeric($value)) {
+            if (!isset(Frequency::$fn[$value])) {
+              throw new Exception(sprintf('Filter function \'%s\' not available', $value));
             }
         }
 
-        $rule = array(
-                'scope' => Scope::filter($unit, Unit::filter(isset($options['scope']) ? $options['scope'] : null))
-            );
 
-        if (isset($options['fn'])) {
-            if (!isset(Frequency::$fn[$options['fn']])) {
-              throw new Exception(sprintf('Filter function \'%s\' not available', $options['fn']));
-            }
+        $this->rules[$unit] = isset($this->rules[$unit]) ? $this->rules[$unit] : array();
 
-            $rule['fn'] = $options['fn'];
-        } else {
-            $rule['fix'] = isset($options['fix']) ? $options['fix'] : Unit::$defaults[$unit];
-        }
-
-        $this->rules[$unit] = $rule;
+        $this->rules[$unit] = array_merge($this->rules[$unit], $rule);
 
         return $this;
     }
