@@ -1,6 +1,8 @@
 <?php
 namespace Frequency;
 
+use \DateTime;
+
 define('STRING_VALIDATION', '/^F((\d+|\(\w+\))[YMWD](?:\/[EYMW])?)*(?:T((\d+|\(\w+\))[HMS](?:\/[EYMWDH])?)*)?$/');
 
 define('RULE_PARSER', '/(\d+|\(\w+\))([YMWDHS])(?:\/([EYMWDH]))?/');
@@ -24,7 +26,9 @@ class Frequency
             $parts = preg_split('/T(?![^(]*\))/', $str);
 
             $addRule = function ($value, $unit, $scope = null) use (&$rules) {
-                if (!($scope = Scope::filter($unit, $scope))) {
+                $scope = Scope::filter($unit, $scope);
+
+                if (!$scope) {
                     return;
                 }
 
@@ -42,8 +46,6 @@ class Frequency
 
                 $rules[$unit] = $scopes;
             };
-
-            $result = array();
 
             preg_match_all(RULE_PARSER, $parts[0], $matches, PREG_SET_ORDER);
             foreach($matches as $rule) {
@@ -85,7 +87,6 @@ class Frequency
             }
         }
 
-
         $this->rules[$unit] = isset($this->rules[$unit]) ? $this->rules[$unit] : array();
 
         $this->rules[$unit] = array_merge($this->rules[$unit], $rule);
@@ -110,11 +111,11 @@ class Frequency
         return $rules[$unit][$scope];
     }
 
-    public function next(\DateTime $date = null) {
+    public function next(DateTime $date = null) {
         $rules = $this->rules;
 
         if (!$date) {
-            $date = new \DateTime();
+            $date = new DateTime();
         } else {
             $date = clone $date;
         }
@@ -132,7 +133,8 @@ class Frequency
             }));
 
             $safety = 0;
-            for ($j = 0; $j < count($scopes); $j++) {
+            $scopeCount = count($scopes);
+            for ($j = 0; $j < $scopeCount; $j++) {
                 if (++$safety > Frequency::$MAX_ATTEMPTS) {
                     throw new Exception(sprintf(
                         'Gave up after %d to find a match for %s.',
@@ -215,12 +217,13 @@ class Frequency
         return $date;
     }
 
-    public function between(\DateTime $start, \DateTime $end)
+    public function between(DateTime $start, DateTime $end)
     {
         $result = array();
         $d = clone $start;
 
         $d = $this->next($d);
+
         while ($d < $end) {
             $result[] = clone $d;
             $d->modify('+1 second');
@@ -234,6 +237,7 @@ class Frequency
     {
         $frequency = new Frequency();
         $frequency->rules = $this->rules;
+
         return $frequency;
     }
 

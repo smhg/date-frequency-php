@@ -1,14 +1,16 @@
 <?php
 namespace Frequency;
 
+use \DateTime;
+
 $day = 24 * 60 * 60;
 define('DAY', $day);
 
 $week = DAY * 7;
 define('WEEK', $week);
 
-function weekOfEpoch (\DateTime $date) {
-    $epoch = new \DateTime('1969-12-29T00:00:00', $date->getTimezone());
+function weekOfEpoch (DateTime $date) {
+    $epoch = new DateTime('1969-12-29T00:00:00', $date->getTimezone());
     return floor(($date->format('U') - $epoch->format('U') + $epoch->format('Z') - $date->format('Z')) / WEEK);
 }
 
@@ -58,9 +60,9 @@ class Unit
           return -1;
         } else if ($leftPos === $rightPos) {
           return 0;
-        } else {
-          return 1;
         }
+
+        return 1;
     }
 
     public static function lower($unit)

@@ -19,7 +19,8 @@
         "php": ">=5.6"
     },
     "require-dev": {
-        "phpunit/phpunit": "^5.7.27"
+        "phpunit/phpunit": "^5.7.27",
+        "phpmd/phpmd": "^2.8"
     },
     "autoload": {
         "psr-0": {
@@ -27,6 +28,7 @@
         }
     },
     "scripts": {
-      "test": "APPLICATION_ENV=test phpunit"
+      "test": "APPLICATION_ENV=test phpunit",
+      "lint": "phpmd src ansi unusedcode,design"
     }
 }
