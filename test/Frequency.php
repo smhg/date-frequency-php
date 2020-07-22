@@ -286,7 +286,17 @@ class FrequencyTest extends TestCase
         $frequency = new Frequency('F1DT0H0M0S');
         $frequency2 = clone $frequency;
         $frequency2->on('D', 2);
+
         $this->assertEquals('F1DT0H0M0S', (string)$frequency);
         $this->assertEquals('F2DT0H0M0S', (string)$frequency2);
+    }
+
+    public function testMicroseconds() {
+        $frequency = new Frequency('FT30M0S');
+
+        $this->assertTrue($frequency->next()->format('u') === '000000');
+
+        $start = new DateTime('T12:00:00.123456');
+        $this->assertTrue($frequency->next($start)->format('u') === '000000');
     }
 }

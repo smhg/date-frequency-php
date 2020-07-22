@@ -120,6 +120,9 @@ class Frequency
             $date = clone $date;
         }
 
+        // result should never contain microseconds, so round down
+        $date->modify(sprintf('-%s microsecond', $date->format('u')));
+
         for ($i = count(Unit::$order) - 1; $i >= 0; $i--) {
             $unit = Unit::$order[$i];
 
