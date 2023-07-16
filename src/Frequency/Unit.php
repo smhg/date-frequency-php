@@ -2,6 +2,7 @@
 namespace Frequency;
 
 use \DateTime;
+use \DateTimeInterface;
 
 $day = 24 * 60 * 60;
 define('DAY', $day);
@@ -9,7 +10,7 @@ define('DAY', $day);
 $week = DAY * 7;
 define('WEEK', $week);
 
-function weekOfEpoch (DateTime $date) {
+function weekOfEpoch (DateTimeInterface $date) {
     $epoch = new DateTime('1969-12-29T00:00:00', $date->getTimezone());
     return floor(($date->format('U') - $epoch->format('U') + $epoch->format('Z') - $date->format('Z')) / WEEK);
 }
@@ -92,7 +93,7 @@ class Unit
         return array_intersect(self::lower($left), self::higher($right));
     }
 
-    public static function get(\DateTime $date, $unit, $scope = null)
+    public static function get(DateTimeInterface $date, $unit, $scope = null)
     {
         switch ($unit) {
             case 'Y':

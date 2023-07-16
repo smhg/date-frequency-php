@@ -2,6 +2,7 @@
 namespace Frequency;
 
 use \DateTime;
+use \DateTimeImmutable;
 
 define('STRING_VALIDATION', '/^F((\d+|\(\w+\))[YMWD](?:\/[EYMW])?)*(?:T((\d+|\(\w+\))[HMS](?:\/[EYMWDH])?)*)?$/');
 
@@ -111,7 +112,7 @@ class Frequency
         return $rules[$unit][$scope];
     }
 
-    public function next(DateTime $date = null) {
+    public function next(DateTime|DateTimeImmutable $date = null) {
         $rules = $this->rules;
 
         if (!$date) {
@@ -220,7 +221,7 @@ class Frequency
         return $date;
     }
 
-    public function between(DateTime $start, DateTime $end)
+    public function between(DateTime|DateTimeImmutable $start, DateTime|DateTimeImmutable $end)
     {
         $result = array();
         $d = clone $start;

@@ -28,7 +28,10 @@ Frequency::$fn['inThirdFullWeek'] = function($week, $date) {
         ->setTime(0, 0, 0);
 
     $start = clone $firstDay;
-    $start->modify('+' . ((8 - (int)$firstDay->format('N')) % 7) + 14 . ' days');
+    $start->modify(sprintf(
+        '+%d days',
+        ((8 - (int)$firstDay->format('N')) % 7) + 14
+    ));
 
     $end = clone $start;
     $end->modify('+7 days');
