@@ -102,60 +102,48 @@ class Unit
                 switch ($scope) {
                     case 'E':
                         throw new Exception('Scope not implemented: month of epoch');
-                        break;
                     case 'Y':
                         return (int)$date->format('n');
-                        break;
                 }
                 break;
             case 'W':
                 switch ($scope) {
                     case 'E':
                         return (int)weekOfEpoch($date);
-                        break;
                     case 'Y':
                         return (int)$date->format('W');
-                        break;
                     case 'M':
                         throw new Exception('Scope not implemented: week of month');
-                        break;
                 }
                 break;
             case 'D':
                 switch ($scope) {
                     case 'E':
                         throw new Exception('Scope not implemented: day of epoch');
-                        break;
                     case 'Y':
                         return (int)$date->format('z') + 1;
-                        break;
                     case 'W':
                         return (int)$date->format('N');
-                        break;
                     case 'M':
                         return (int)$date->format('j');
-                        break;
                 }
                 break;
             case 'h':
                 switch ($scope) {
                     case 'D':
                         return (int)$date->format('G');
-                        break;
                 }
                 break;
             case 'm':
                 switch ($scope) {
                     case 'h':
                         return (int)$date->format('i');
-                        break;
                 }
                 break;
             case 's':
                 switch ($scope) {
                     case 'm':
                         return (int)$date->format('s');
-                        break;
                 }
                 break;
         }
