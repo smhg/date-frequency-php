@@ -1,4 +1,4 @@
-date-frequency-php [![Build status](https://api.travis-ci.org/smhg/date-frequency-php.png)](https://travis-ci.org/smhg/date-frequency-php)
+date-frequency-php [![CI](https://github.com/smhg/date-frequency-php/workflows/CI/badge.svg)](https://github.com/smhg/date-frequency-php/actions)
 ==================
 
 > Temporal frequency library
