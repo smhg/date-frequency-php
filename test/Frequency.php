@@ -58,14 +58,9 @@ class FrequencyTest extends TestCase
 
     public function testInvalidString()
     {
-        try {
-            $frequency = new Frequency('F9H');
-            $frequency = new Frequency('FT6D');
-        } catch (Exception $e) {
-            return;
-        }
-
-        $this->fail('Invalid string format not detected.');
+        $this->expectException(Exception::class);
+        $frequency = new Frequency('F9H');
+        $frequency = new Frequency('FT6D');
     }
 
     public function testOnAndGetValue()
