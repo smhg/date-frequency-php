@@ -19,7 +19,7 @@ function weekOfEpoch (DateTimeInterface $date): float
 class Unit
 {
     /**
-     * @var array<string>
+     * @var array<int, string>
      */
     public static array $order = array('Y', 'M', 'W', 'D', 'h', 'm', 's');
 

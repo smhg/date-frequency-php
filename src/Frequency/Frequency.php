@@ -37,6 +37,10 @@ class Frequency
 
             $parts = preg_split('/T(?![^(]*\))/', $str);
 
+            if ($parts === false) {
+                throw new Exception('Invalid frequency \'' . $str . '\'');
+            }
+
             $addRule = function ($value, $unit, $scope = null) use (&$rules) {
                 $scope = Scope::filter($unit, $scope);
 
@@ -75,13 +79,17 @@ class Frequency
         }
 
         foreach ($rules as $unit => $rule) {
+            if (!is_string($unit)) {
+                throw new Exception('Invalid unit');
+            }
+
             foreach ($rule as $scope => $value) {
                 $this->on($unit, $value, $scope);
             }
         }
     }
 
-    public function on(string $unit, int|string|callable $value, string $scope = null): static
+    public function on(string $unit, int|string $value, string $scope = null): static
     {
         $unit = Unit::filter($unit);
 
