@@ -237,14 +237,6 @@ class Frequency
         return $result;
     }
 
-    public function __clone()
-    {
-        $frequency = new Frequency();
-        $frequency->rules = $this->rules;
-
-        return $frequency;
-    }
-
     public function __toString()
     {
         $result = 'F';
