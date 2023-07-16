@@ -117,6 +117,11 @@ class Frequency
     public function getValue(string $unit, ?string $scope = null): int|string|callable|null
     {
         $unit = Unit::filter($unit);
+
+        if ($unit === null) {
+            return null;
+        }
+
         $scope = Scope::filter($unit, Unit::filter($scope));
         $rules = $this->rules;
 

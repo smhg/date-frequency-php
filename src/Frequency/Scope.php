@@ -22,7 +22,7 @@ class Scope
             throw new Exception('Invalid unit');
         }
 
-        if (!in_array($scope, self::$scopes[$unit])) {
+        if (is_null($scope) || !in_array($scope, self::$scopes[$unit])) {
             return self::getDefault($unit);
         }
 

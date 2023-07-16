@@ -51,7 +51,7 @@ class Unit
 
     public static function filter(?string $unit): string|null
     {
-        if (array_key_exists($unit, self::$full)) {
+        if (is_string($unit) && array_key_exists($unit, self::$full)) {
             return self::$full[$unit];
         }
 
