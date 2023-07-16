@@ -3,7 +3,10 @@ namespace Frequency;
 
 class Scope
 {
-    public static $scopes = array(
+    /**
+     * @var array<string, array<string>>
+     */
+    public static array $scopes = array(
         'Y' => array('E'),
         'M' => array('Y', 'E'),
         'W' => array('Y', 'M', 'E'),
@@ -13,29 +16,25 @@ class Scope
         's' => array('m')
     );
 
-    public static function filter($unit, $scope = null)
+    public static function filter(string $unit, ?string $scope = null): string
     {
-        if (!isset(self::$scopes[$unit])) {
+        if (!array_key_exists($unit, self::$scopes)) {
             throw new Exception('Invalid unit');
         }
 
-        if (is_array(self::$scopes[$unit])) {
-            if (!in_array($scope, self::$scopes[$unit])) {
-                return self::getDefault($unit);
-            }
-        } elseif (self::$scopes[$unit] !== $scope) {
+        if (!in_array($scope, self::$scopes[$unit])) {
             return self::getDefault($unit);
         }
 
         return $scope;
     }
 
-    public static function getDefault($unit)
+    public static function getDefault(string $unit): string
     {
-        if (is_array(self::$scopes[$unit])) {
-            return self::$scopes[$unit][0];
+        if (!array_key_exists($unit, self::$scopes)) {
+            throw new Exception('Invalid unit');
         }
 
-        return self::$scopes[$unit];
+        return self::$scopes[$unit][0];
     }
 }

@@ -41,7 +41,7 @@ Frequency::$fn['inThirdFullWeek'] = function($week, $date) {
 
 class FrequencyTest extends TestCase
 {
-    public function testValidString()
+    public function testValidString(): void
     {
         $frequency = new Frequency('FT9H');
         $this->assertEquals(9, $frequency->getValue('h'));
@@ -59,14 +59,14 @@ class FrequencyTest extends TestCase
         $this->assertEquals(9, $frequency->getValue('h'));
     }
 
-    public function testInvalidString()
+    public function testInvalidString(): void
     {
         $this->expectException(Exception::class);
         $frequency = new Frequency('F9H');
         $frequency = new Frequency('FT6D');
     }
 
-    public function testOnAndGetValue()
+    public function testOnAndGetValue(): void
     {
         $frequency = new Frequency();
 
@@ -88,7 +88,7 @@ class FrequencyTest extends TestCase
         $this->assertEquals(2, $frequency->getValue('day', 'week'));
     }
 
-    public function testNext()
+    public function testNext(): void
     {
         $frequency = new Frequency(); // every second
         $this->assertTrue($frequency->next(new \DateTime()) instanceof \DateTime);
@@ -155,7 +155,7 @@ class FrequencyTest extends TestCase
         $this->assertEquals(new \DateTime('2019-02-05T12:00:00'), $frequency->next(new \DateTime('2018-11-25T00:00:00')));
     }
 
-    public function testFilter()
+    public function testFilter(): void
     {
         $f = new Frequency('F(odd)W1D/WT15H45M0S'); // Mondays of odd weeks at 15:45:00
         $this->assertEquals(new \DateTime('2015-05-04T15:45:00'), $f->next(new \DateTime('2015-04-29T00:00:00')));
@@ -206,7 +206,7 @@ class FrequencyTest extends TestCase
         $this->assertEquals(new \DateTime('2018-11-29T00:30:00'), $f->next(new \DateTime('2018-11-25T00:00:00')));
     }
 
-    public function testBetween()
+    public function testBetween(): void
     {
         $frequency = new Frequency();
         $frequency->on('hour', 10)
@@ -227,7 +227,7 @@ class FrequencyTest extends TestCase
         $this->assertEquals(0, count($dates));
     }
 
-    public function testToString()
+    public function testToString(): void
     {
         $frequency = new Frequency('FT15H45M');
         $this->assertEquals('FT15H45M', (string)$frequency);
@@ -279,7 +279,7 @@ class FrequencyTest extends TestCase
         $this->assertEquals('F(inThirdFullWeek)DT9H', (string)$frequency);
     }
 
-    public function testClone()
+    public function testClone(): void
     {
         $frequency = new Frequency('F1DT0H0M0S');
         $frequency2 = clone $frequency;
@@ -289,7 +289,8 @@ class FrequencyTest extends TestCase
         $this->assertEquals('F2DT0H0M0S', (string)$frequency2);
     }
 
-    public function testMicroseconds() {
+    public function testMicroseconds(): void
+    {
         $frequency = new Frequency('FT30M0S');
 
         $this->assertTrue($frequency->next()->format('u') === '000000');

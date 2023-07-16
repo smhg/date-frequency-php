@@ -8,12 +8,12 @@ use PHPUnit\Framework\TestCase;
 
 class ScopeTest extends TestCase
 {
-    public function testGetDefault()
+    public function testGetDefault(): void
     {
         $this->assertEquals('M', Scope::getDefault('D'));
     }
 
-    public function testFilter()
+    public function testFilter(): void
     {
         $this->expectException(Exception::class);
         Scope::filter('X');

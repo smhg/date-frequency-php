@@ -3,6 +3,7 @@ namespace Frequency;
 
 use \DateTime;
 use \DateTimeImmutable;
+use \DateTimeInterface;
 
 define('STRING_VALIDATION', '/^F((\d+|\(\w+\))[YMWD](?:\/[EYMW])?)*(?:T((\d+|\(\w+\))[HMS](?:\/[EYMWDH])?)*)?$/');
 
@@ -10,12 +11,22 @@ define('RULE_PARSER', '/(\d+|\(\w+\))([YMWDHS])(?:\/([EYMWDH]))?/');
 
 class Frequency
 {
-    public static $fn = array();
-    public static $MAX_ATTEMPTS = 100;
+    /**
+     * @var array<string, callable>
+     */
+    public static array $fn = array();
 
-    protected $rules = array();
+    public static int $MAX_ATTEMPTS = 100;
 
-    public function __construct($str = null)
+    /**
+     * @var array<string, array<string, int|string>>
+     */
+    protected array $rules = array();
+
+    /**
+     * @param string|array<string, array<string, int|string>>|null $str
+     */
+    public function __construct(string|array|null $str = null)
     {
         $rules = array();
 
@@ -70,7 +81,7 @@ class Frequency
         }
     }
 
-    public function on($unit, $value, $scope = null)
+    public function on(string $unit, int|string|callable $value, string $scope = null): static
     {
         $unit = Unit::filter($unit);
 
@@ -95,24 +106,25 @@ class Frequency
         return $this;
     }
 
-    public function getValue($unit, $scope = null)
+    public function getValue(string $unit, ?string $scope = null): int|string|callable|null
     {
-        $rules = $this->rules;
         $unit = Unit::filter($unit);
         $scope = Scope::filter($unit, Unit::filter($scope));
+        $rules = $this->rules;
 
         if (!isset($rules[$unit])) {
-            return;
+            return null;
         }
 
         if (!isset($rules[$unit][$scope])) {
-            return;
+            return null;
         }
 
         return $rules[$unit][$scope];
     }
 
-    public function next(DateTime|DateTimeImmutable $date = null) {
+    public function next(DateTime|DateTimeImmutable $date = null): DateTime|DateTimeImmutable
+    {
         $rules = $this->rules;
 
         if (!$date) {
@@ -221,7 +233,10 @@ class Frequency
         return $date;
     }
 
-    public function between(DateTime|DateTimeImmutable $start, DateTime|DateTimeImmutable $end)
+    /**
+     * @return array<DateTime|DateTimeImmutable>
+     */
+    public function between(DateTime|DateTimeImmutable $start, DateTime|DateTimeImmutable $end): array
     {
         $result = array();
         $d = clone $start;
