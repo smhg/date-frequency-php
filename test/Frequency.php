@@ -148,6 +148,11 @@ class FrequencyTest extends TestCase
 
         $this->assertEquals(new \DateTime('2014-03-17T15:45:00'), $frequency->next(new \DateTime('2014-03-10T15:46:00')));
 
+        $this->assertEquals(
+            new \DateTimeImmutable('2014-03-17T15:45:00'),
+            $frequency->next(new \DateTimeImmutable('2014-03-10T15:46:00'))
+        );
+
         $frequency = new Frequency('F1D/WT15H45M0S');
         $this->assertEquals(new \DateTime('2014-03-10T15:45:00'), $frequency->next(new \DateTime('2014-03-04T00:00:00')));
 

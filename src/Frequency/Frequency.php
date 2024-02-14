@@ -147,7 +147,7 @@ class Frequency
         }
 
         // result should never contain microseconds, so round down
-        $date->modify(sprintf('-%s microsecond', $date->format('u')));
+        $date = $date->modify(sprintf('-%s microsecond', $date->format('u')));
 
         for ($i = count(Unit::$order) - 1; $i >= 0; $i--) {
             $unit = Unit::$order[$i];
@@ -183,7 +183,7 @@ class Frequency
 
                     if ($dateValue < $ruleValue) {
                         $full = array_search($unit, Unit::$full);
-                        $date->modify(sprintf('+%d %s', $ruleValue - $dateValue, $full));
+                        $date = $date->modify(sprintf('+%d %s', $ruleValue - $dateValue, $full));
 
                         $lowerUnits = array_filter(Unit::lower($unit), function ($unit) use($rules) {
                             return isset(Unit::$defaults[$unit]) && !isset($rules[$unit]);
@@ -195,7 +195,7 @@ class Frequency
 
                             if ($dv !== $def) {
                                 $full = array_search($lowerUnit, Unit::$full);
-                                $date->modify(sprintf('-%d %s', $dv - $def, $full));
+                                $date = $date->modify(sprintf('-%d %s', $dv - $def, $full));
                             }
                         }
 
@@ -204,9 +204,9 @@ class Frequency
 
                     if ($dateValue > $ruleValue) {
                         $full = array_search($unit, Unit::$full);
-                        $date->modify(sprintf('-%d %s', $dateValue - $ruleValue, $full));
+                        $date = $date->modify(sprintf('-%d %s', $dateValue - $ruleValue, $full));
                         $scopeFull = array_search($scope, Unit::$full);
-                        $date->modify(sprintf('+1 %s', $scopeFull));
+                        $date = $date->modify(sprintf('+1 %s', $scopeFull));
 
                         $lowerUnits = array_filter(Unit::lower($unit), function ($unit) use($rules) {
                             return isset(Unit::$defaults[$unit]) && !isset($rules[$unit]);
@@ -218,7 +218,7 @@ class Frequency
 
                             if ($dv !== $def) {
                                 $full = array_search($lowerUnit, Unit::$full);
-                                $date->modify(sprintf('-%d %s', $dv - $def, $full));
+                                $date = $date->modify(sprintf('-%d %s', $dv - $def, $full));
                             }
                         }
 
@@ -234,7 +234,7 @@ class Frequency
 
                     if (!$success) {
                         do {
-                            $date->modify(sprintf('+1 %s', $full));
+                            $date = $date->modify(sprintf('+1 %s', $full));
                         } while (!$fn(Unit::get($date, $unit, $scope), $date));
 
                         $j = -1; // check all scopes of this unit again
