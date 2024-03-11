@@ -258,7 +258,7 @@ class Frequency
 
         while ($d < $end) {
             $result[] = clone $d;
-            $d->modify('+1 second');
+            $d = $d->modify('+1 second');
             $d = $this->next($d);
         }
 
