@@ -89,7 +89,7 @@ class Frequency
         }
     }
 
-    public function on(string $unit, int|string $value, string $scope = null): static
+    public function on(string $unit, int|string $value, ?string $scope = null): static
     {
         $unit = Unit::filter($unit);
 
@@ -136,7 +136,7 @@ class Frequency
         return $rules[$unit][$scope];
     }
 
-    public function next(DateTime|DateTimeImmutable $date = null): DateTime|DateTimeImmutable
+    public function next(DateTime|DateTimeImmutable|null $date = null): DateTime|DateTimeImmutable
     {
         $rules = $this->rules;
 
