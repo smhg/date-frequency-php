@@ -19,7 +19,7 @@ $frequency = new Frequency();
 $frequency->on('day', 3, 'week')
 	->on('hour', 10)
 	->on('minute', 0)
-	->on('seconds', 0); // every Wednesday at 10:00:00
+	->on('second', 0); // every Wednesday at 10:00:00
 ```
 
 #### Frequency([string rules])
