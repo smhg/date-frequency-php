@@ -20,6 +20,8 @@ class ScopeTest extends TestCase
         $this->assertEquals('W', Scope::filter('D', 'W'));
         $this->assertEquals('W', Scope::filter('D', 'week'));
         $this->assertEquals('E', Scope::filter('W', 'epoch'));
+        $this->assertEquals('E', Scope::filter('M', 'E'));
+        $this->assertEquals('E', Scope::filter('D', 'E'));
     }
 
     public function testFilterInvalid(): void
@@ -29,9 +31,7 @@ class ScopeTest extends TestCase
             array('h', 'X'), // unknown scope
             array('D', 'wek'),
             array('h', 'W'), // known scope, not valid for this unit
-            array('M', 'E'),
             array('W', 'M'),
-            array('D', 'E'),
         );
 
         foreach ($invalid as list($unit, $scope)) {

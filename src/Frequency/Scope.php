@@ -8,9 +8,9 @@ class Scope
      */
     public static array $scopes = array(
         'Y' => array('E'),
-        'M' => array('Y'),
+        'M' => array('Y', 'E'),
         'W' => array('Y', 'E'),
-        'D' => array('M', 'Y', 'W'),
+        'D' => array('M', 'Y', 'W', 'E'),
         'h' => array('D'),
         'm' => array('h'),
         's' => array('m')

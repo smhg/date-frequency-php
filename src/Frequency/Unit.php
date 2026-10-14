@@ -3,10 +3,13 @@ namespace Frequency;
 
 use \DateTime;
 use \DateTimeInterface;
+use \DateTimeZone;
 
 class Unit
 {
-    private const WEEK = 7 * 24 * 60 * 60;
+    private const DAY = 24 * 60 * 60;
+
+    private const WEEK = 7 * self::DAY;
 
     /**
      * @var array<int, string>
@@ -112,6 +115,8 @@ class Unit
                 return (int)$date->format('Y');
             case 'M':
                 switch ($scope) {
+                    case 'E':
+                        return ((int)$date->format('Y') - 1970) * 12 + (int)$date->format('n') - 1;
                     case 'Y':
                         return (int)$date->format('n');
                 }
@@ -126,6 +131,8 @@ class Unit
                 break;
             case 'D':
                 switch ($scope) {
+                    case 'E':
+                        return self::dayOfEpoch($date);
                     case 'Y':
                         return (int)$date->format('z') + 1;
                     case 'W':
@@ -155,6 +162,13 @@ class Unit
         }
 
         throw new Exception('Invalid unit/scope: ' . $unit . '/' . $scope);
+    }
+
+    private static function dayOfEpoch(DateTimeInterface $date): int
+    {
+        // local calendar date, so DST and UTC offsets don't shift the day
+        $day = new DateTime($date->format('Y-m-d'), new DateTimeZone('UTC'));
+        return intdiv((int)$day->format('U'), self::DAY);
     }
 
     private static function weekOfEpoch(DateTimeInterface $date): int

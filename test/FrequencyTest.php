@@ -74,11 +74,8 @@ class FrequencyTest extends TestCase
         $attempts = array(
             fn() => (new Frequency())->on('day', 3, 'wek'),
             fn() => (new Frequency())->on('hour', 9, 'week'),
-            fn() => (new Frequency())->on('month', 1, 'epoch'),
             fn() => (new Frequency())->on('week', 2, 'month'),
-            fn() => (new Frequency())->on('day', 1, 'E'),
             fn() => new Frequency('F2W/MT0H0M0S'),
-            fn() => new Frequency(array('D' => array('E' => 1))),
         );
 
         foreach ($attempts as $i => $attempt) {
@@ -234,6 +231,37 @@ class FrequencyTest extends TestCase
 
         $f = new Frequency('F(odd)D4D/WT30M');
         $this->assertEquals(new \DateTime('2018-11-29T00:30:00'), $f->next(new \DateTime('2018-11-25T00:00:00')));
+    }
+
+    public function testEpochFilter(): void
+    {
+        Frequency::$fn['every3'] = function($number) {
+            return $number % 3 === 0;
+        };
+        Frequency::$fn['every5'] = function($number) {
+            return $number % 5 === 0;
+        };
+
+        $tz = new \DateTimeZone('Europe/Brussels');
+        $f = new Frequency('F(every3)D/ET9H0M0S'); // every 3 days at 09:00:00, across month end and DST
+        $this->assertEquals(
+            array('2026-03-26T09:00:00+01:00', '2026-03-29T09:00:00+02:00', '2026-04-01T09:00:00+02:00'),
+            array_map(
+                fn($date) => $date->format('c'),
+                $f->between(new \DateTime('2026-03-24T00:00:00', $tz), new \DateTime('2026-04-03T00:00:00', $tz))
+            )
+        );
+
+        $f = new Frequency('F(every5)M/E1DT0H0M0S'); // every 5 months on the 1st at midnight, across year end
+        $this->assertEquals(
+            array('2026-04-01', '2026-09-01', '2027-02-01', '2027-07-01'),
+            array_map(
+                fn($date) => $date->format('Y-m-d'),
+                $f->between(new \DateTime('2026-01-01T00:00:00'), new \DateTime('2027-12-01T00:00:00'))
+            )
+        );
+
+        $this->assertEquals('F(every5)M/E(every3)D/E', (string)(new Frequency('F(every5)M/E(every3)D/E')));
     }
 
     public function testBetween(): void
