@@ -4,20 +4,10 @@ namespace Frequency;
 use \DateTime;
 use \DateTimeInterface;
 
-$day = 24 * 60 * 60;
-define('DAY', $day);
-
-$week = DAY * 7;
-define('WEEK', $week);
-
-function weekOfEpoch (DateTimeInterface $date): float
-{
-    $epoch = new DateTime('1969-12-29T00:00:00', $date->getTimezone());
-    return floor(($date->format('U') - $epoch->format('U') + $epoch->format('Z') - $date->format('Z')) / WEEK);
-}
-
 class Unit
 {
+    private const WEEK = 7 * 24 * 60 * 60;
+
     /**
      * @var array<int, string>
      */
@@ -131,7 +121,7 @@ class Unit
             case 'W':
                 switch ($scope) {
                     case 'E':
-                        return (int)weekOfEpoch($date);
+                        return self::weekOfEpoch($date);
                     case 'Y':
                         return (int)$date->format('W');
                     case 'M':
@@ -171,5 +161,11 @@ class Unit
         }
 
         throw new Exception('Invalid unit/scope: ' . $unit . '/' . $scope);
+    }
+
+    private static function weekOfEpoch(DateTimeInterface $date): int
+    {
+        $epoch = new DateTime('1969-12-29T00:00:00', $date->getTimezone());
+        return (int)floor(($date->format('U') - $epoch->format('U') + $epoch->format('Z') - $date->format('Z')) / self::WEEK);
     }
 }

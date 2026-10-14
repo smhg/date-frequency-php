@@ -5,12 +5,12 @@ use \DateTime;
 use \DateTimeImmutable;
 use \DateTimeInterface;
 
-define('STRING_VALIDATION', '/^F((\d+|\(\w+\))[YMWD](?:\/[EYMW])?)*(?:T((\d+|\(\w+\))[HMS](?:\/[EYMWDH])?)*)?$/');
-
-define('RULE_PARSER', '/(\d+|\(\w+\))([YMWDHS])(?:\/([EYMWDH]))?/');
-
 class Frequency
 {
+    private const STRING_VALIDATION = '/^F((\d+|\(\w+\))[YMWD](?:\/[EYMW])?)*(?:T((\d+|\(\w+\))[HMS](?:\/[EYMWDH])?)*)?$/';
+
+    private const RULE_PARSER = '/(\d+|\(\w+\))([YMWDHS])(?:\/([EYMWDH]))?/';
+
     /**
      * @var array<string, callable>
      */
@@ -31,7 +31,7 @@ class Frequency
         $rules = array();
 
         if (is_string($str)) {
-            if (!preg_match(STRING_VALIDATION, $str)) {
+            if (!preg_match(self::STRING_VALIDATION, $str)) {
                 throw new Exception('Invalid frequency \'' . $str . '\'');
             }
 
@@ -63,13 +63,13 @@ class Frequency
                 $rules[$unit] = $scopes;
             };
 
-            preg_match_all(RULE_PARSER, $parts[0], $matches, PREG_SET_ORDER);
+            preg_match_all(self::RULE_PARSER, $parts[0], $matches, PREG_SET_ORDER);
             foreach($matches as $rule) {
                 $addRule($rule[1], $rule[2], isset($rule[3]) ? $rule[3] : null);
             }
 
             if (isset($parts[1])) {
-                preg_match_all(RULE_PARSER, $parts[1], $matches, PREG_SET_ORDER);
+                preg_match_all(self::RULE_PARSER, $parts[1], $matches, PREG_SET_ORDER);
                 foreach($matches as $rule) {
                     $addRule($rule[1], strtolower($rule[2]));
                 }
