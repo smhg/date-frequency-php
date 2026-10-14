@@ -22,19 +22,17 @@ Frequency::$fn['leap'] = function($year) {
     return $year % 4 === 0; // just a demo
 };
 
-Frequency::$fn['inThirdFullWeek'] = function($week, $date) {
-    $firstDay = clone $date;
-    $firstDay->modify('first day of this month')
+Frequency::$fn['inThirdFullWeek'] = function(int $week, \DateTimeInterface $date) {
+    $firstDay = \DateTimeImmutable::createFromInterface($date)
+        ->modify('first day of this month')
         ->setTime(0, 0, 0);
 
-    $start = clone $firstDay;
-    $start->modify(sprintf(
+    $start = $firstDay->modify(sprintf(
         '+%d days',
         ((8 - (int)$firstDay->format('N')) % 7) + 14
     ));
 
-    $end = clone $start;
-    $end->modify('+7 days');
+    $end = $start->modify('+7 days');
 
     return $start <= $date && $date < $end;
 };
