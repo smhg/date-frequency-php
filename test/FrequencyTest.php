@@ -59,9 +59,14 @@ class FrequencyTest extends TestCase
 
     public function testInvalidString(): void
     {
-        $this->expectException(Exception::class);
-        $frequency = new Frequency('F9H');
-        $frequency = new Frequency('FT6D');
+        foreach (array('F9H', 'FT6D') as $str) {
+            try {
+                new Frequency($str);
+                $this->fail(sprintf('No exception for invalid frequency \'%s\'', $str));
+            } catch (Exception $e) {
+                $this->assertStringContainsString($str, $e->getMessage());
+            }
+        }
     }
 
     public function testOnAndGetValue(): void
