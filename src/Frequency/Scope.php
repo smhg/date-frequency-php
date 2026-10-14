@@ -8,9 +8,9 @@ class Scope
      */
     public static array $scopes = array(
         'Y' => array('E'),
-        'M' => array('Y', 'E'),
-        'W' => array('Y', 'M', 'E'),
-        'D' => array('M', 'Y', 'W', 'E'),
+        'M' => array('Y'),
+        'W' => array('Y', 'E'),
+        'D' => array('M', 'Y', 'W'),
         'h' => array('D'),
         'm' => array('h'),
         's' => array('m')
@@ -22,11 +22,17 @@ class Scope
             throw new Exception('Invalid unit');
         }
 
-        if (is_null($scope) || !in_array($scope, self::$scopes[$unit])) {
+        if (is_null($scope)) {
             return self::getDefault($unit);
         }
 
-        return $scope;
+        $filtered = Unit::filter($scope);
+
+        if (is_null($filtered) || !in_array($filtered, self::$scopes[$unit])) {
+            throw new Exception(sprintf('Invalid scope \'%s\' for unit %s', $scope, $unit));
+        }
+
+        return $filtered;
     }
 
     public static function getDefault(string $unit): string

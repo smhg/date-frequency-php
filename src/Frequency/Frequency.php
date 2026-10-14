@@ -97,7 +97,7 @@ class Frequency
             throw new Exception('Invalid unit');
         }
 
-        $scope = Scope::filter($unit, Unit::filter($scope));
+        $scope = Scope::filter($unit, $scope);
 
         $rule = array($scope => $value);
 
@@ -122,7 +122,7 @@ class Frequency
             return null;
         }
 
-        $scope = Scope::filter($unit, Unit::filter($scope));
+        $scope = Scope::filter($unit, $scope);
         $rules = $this->rules;
 
         if (!isset($rules[$unit])) {

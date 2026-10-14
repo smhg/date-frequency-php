@@ -69,6 +69,28 @@ class FrequencyTest extends TestCase
         }
     }
 
+    public function testInvalidScope(): void
+    {
+        $attempts = array(
+            fn() => (new Frequency())->on('day', 3, 'wek'),
+            fn() => (new Frequency())->on('hour', 9, 'week'),
+            fn() => (new Frequency())->on('month', 1, 'epoch'),
+            fn() => (new Frequency())->on('week', 2, 'month'),
+            fn() => (new Frequency())->on('day', 1, 'E'),
+            fn() => new Frequency('F2W/MT0H0M0S'),
+            fn() => new Frequency(array('D' => array('E' => 1))),
+        );
+
+        foreach ($attempts as $i => $attempt) {
+            try {
+                $attempt();
+                $this->fail(sprintf('No exception for invalid scope (attempt %d)', $i));
+            } catch (Exception $e) {
+                $this->assertStringStartsWith('Invalid scope', $e->getMessage());
+            }
+        }
+    }
+
     public function testOnAndGetValue(): void
     {
         $frequency = new Frequency();

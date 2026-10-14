@@ -112,8 +112,6 @@ class Unit
                 return (int)$date->format('Y');
             case 'M':
                 switch ($scope) {
-                    case 'E':
-                        throw new Exception('Scope not implemented: month of epoch');
                     case 'Y':
                         return (int)$date->format('n');
                 }
@@ -124,14 +122,10 @@ class Unit
                         return self::weekOfEpoch($date);
                     case 'Y':
                         return (int)$date->format('W');
-                    case 'M':
-                        throw new Exception('Scope not implemented: week of month');
                 }
                 break;
             case 'D':
                 switch ($scope) {
-                    case 'E':
-                        throw new Exception('Scope not implemented: day of epoch');
                     case 'Y':
                         return (int)$date->format('z') + 1;
                     case 'W':
